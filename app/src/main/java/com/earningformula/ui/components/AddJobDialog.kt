@@ -114,16 +114,17 @@ fun AddJobDialog(
                         Spacer(modifier = Modifier.width(12.dp))
                         
                         OutlinedTextField(
-                            value = hoursPerDay[day] ?: "0",
-                            onValueChange = { 
-                                hoursPerDay = hoursPerDay.toMutableMap().apply { 
-                                    this[day] = it 
+                            value = hoursPerDay[day]?.let { if (it == "0") "" else it } ?: "",
+                            onValueChange = { newValue ->
+                                hoursPerDay = hoursPerDay.toMutableMap().apply {
+                                    this[day] = if (newValue.isEmpty()) "0" else newValue
                                 }
                             },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true,
-                            suffix = { Text("ч") }
+                            suffix = { Text("ч") },
+                            placeholder = { Text("0") }
                         )
                     }
                     
@@ -155,16 +156,17 @@ fun AddJobDialog(
                         Spacer(modifier = Modifier.width(12.dp))
                         
                         OutlinedTextField(
-                            value = hoursPerDay[day] ?: "0",
-                            onValueChange = { 
-                                hoursPerDay = hoursPerDay.toMutableMap().apply { 
-                                    this[day] = it 
+                            value = hoursPerDay[day]?.let { if (it == "0") "" else it } ?: "",
+                            onValueChange = { newValue ->
+                                hoursPerDay = hoursPerDay.toMutableMap().apply {
+                                    this[day] = if (newValue.isEmpty()) "0" else newValue
                                 }
                             },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true,
-                            suffix = { Text("ч") }
+                            suffix = { Text("ч") },
+                            placeholder = { Text("0") }
                         )
                     }
                     
