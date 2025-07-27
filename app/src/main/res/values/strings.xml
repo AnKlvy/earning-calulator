@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Калькулятор зарплаты</string>
+    <string name="add_job">Добавить работу</string>
+    <string name="job_name">Название работы</string>
+    <string name="monthly_salary">Зарплата в месяц</string>
+    <string name="hours_per_day">Часы в день</string>
+    <string name="monday">Пн</string>
+    <string name="tuesday">Вт</string>
+    <string name="wednesday">Ср</string>
+    <string name="thursday">Чт</string>
+    <string name="friday">Пт</string>
+    <string name="saturday">Сб</string>
+    <string name="sunday">Вс</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+    <string name="favorites">Избранное</string>
+    <string name="save_configuration">Сохранить конфигурацию</string>
+    <string name="load_configuration">Загрузить конфигурацию</string>
+    <string name="configuration_name">Название конфигурации</string>
+    <string name="total_results">Общие результаты</string>
+    <string name="weekly_hours">Часы в неделю</string>
+    <string name="monthly_hours">Часы в месяц</string>
+    <string name="hourly_rate">Ставка в час</string>
+    <string name="total_weekly_hours">Общие часы в неделю</string>
+    <string name="total_monthly_hours">Общие часы в месяц</string>
+    <string name="total_monthly_salary">Общая зарплата в месяц</string>
+</resources>

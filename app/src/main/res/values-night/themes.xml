@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Dark theme. -->
+    <style name="Theme.EarningFormula" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary colors -->
+        <item name="colorPrimary">#90CAF9</item>
+        <item name="colorPrimaryVariant">#1565C0</item>
+        <item name="colorOnPrimary">#0D47A1</item>
+
+        <!-- Secondary colors -->
+        <item name="colorSecondary">#A5D6A7</item>
+        <item name="colorSecondaryVariant">#2E7D32</item>
+        <item name="colorOnSecondary">#1B5E20</item>
+
+        <!-- Background colors -->
+        <item name="android:colorBackground">#121212</item>
+        <item name="colorOnBackground">#E0E0E0</item>
+
+        <!-- Surface colors -->
+        <item name="colorSurface">#1E1E1E</item>
+        <item name="colorOnSurface">#E0E0E0</item>
+
+        <!-- Error colors -->
+        <item name="colorError">#F48FB1</item>
+        <item name="colorOnError">#B71C1C</item>
+
+        <!-- Status bar -->
+        <item name="android:statusBarColor">#1565C0</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
