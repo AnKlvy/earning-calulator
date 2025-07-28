@@ -212,9 +212,21 @@ class MainViewModel(
     fun deleteConfiguration(configId: String) {
         viewModelScope.launch {
             try {
+                // Проверяем, удаляем ли мы текущую загруженную конфигурацию
+                val currentConfig = _uiState.value.currentLoadedConfiguration
+                val originalConfig = _uiState.value.originalLoadedConfiguration
+
                 configurationRepository.deleteConfiguration(configId)
                 loadSavedConfigurations()
-                
+
+                // Если удаляем текущую конфигурацию, сбрасываем состояние
+                if (currentConfig?.id == configId || originalConfig?.id == configId) {
+                    _uiState.value = _uiState.value.copy(
+                        currentLoadedConfiguration = null,
+                        originalLoadedConfiguration = null
+                    )
+                }
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Ошибка при удалении конфигурации: ${e.message}"
@@ -368,11 +380,14 @@ class MainViewModel(
                             // Обновляем существующую сохраненную конфигурацию
                             configurationRepository.updateConfiguration(updatedConfig)
                             configurationRepository.saveLastConfigurationId(updatedConfig.id)
+                            // Обновляем список сохраненных конфигураций, чтобы показать актуальные данные
+                            loadSavedConfigurations()
                         }
 
-                        // Обновляем состояние
+                        // Обновляем состояние - ВАЖНО: обновляем и originalLoadedConfiguration
                         _uiState.value = _uiState.value.copy(
-                            currentLoadedConfiguration = updatedConfig
+                            currentLoadedConfiguration = updatedConfig,
+                            originalLoadedConfiguration = updatedConfig // Обновляем оригинал после сохранения
                         )
                     } else {
                         // Если нет загруженной конфигурации, создаем новую "текущую"
@@ -390,7 +405,8 @@ class MainViewModel(
 
                         // Обновляем состояние
                         _uiState.value = _uiState.value.copy(
-                            currentLoadedConfiguration = newCurrentConfig
+                            currentLoadedConfiguration = newCurrentConfig,
+                            originalLoadedConfiguration = newCurrentConfig // Устанавливаем как оригинал
                         )
                     }
                 }
