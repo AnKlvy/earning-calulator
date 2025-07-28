@@ -109,16 +109,17 @@ fun JobCard(
             // Будние дни
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Start
             ) {
                 listOf("Пн", "Вт", "Ср", "Чт", "Пт").forEachIndexed { index, day ->
                     val dayOfWeek = com.earningformula.data.models.DayOfWeek.values()[index]
                     val hours = job.hoursPerDay[dayOfWeek] ?: 0.0
-                    
+
                     DayHoursChip(
                         day = day,
                         hours = hours,
-                        isWeekend = false
+                        isWeekend = false,
+                        modifier = Modifier.padding(end = 8.dp)
                     )
                 }
             }
@@ -215,12 +216,14 @@ private fun DayHoursChip(
     }
     
     Surface(
-        modifier = modifier,
+        modifier = modifier.width(48.dp),
         shape = MaterialTheme.shapes.small,
         color = backgroundColor
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
