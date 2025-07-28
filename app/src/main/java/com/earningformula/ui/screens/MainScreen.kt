@@ -132,6 +132,8 @@ fun MainScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     ResultsCard(
                         totalResult = uiState.totalResult,
+                        currentLoadedConfiguration = uiState.currentLoadedConfiguration,
+                        originalLoadedConfiguration = uiState.originalLoadedConfiguration,
                         onSaveConfiguration = { configName ->
                             viewModel.saveConfiguration(configName)
                         }

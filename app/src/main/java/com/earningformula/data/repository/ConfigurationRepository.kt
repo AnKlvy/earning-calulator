@@ -149,6 +149,56 @@ class ConfigurationRepository(
             }
         }
     }
+
+    /**
+     * Сохраняет ID последней использованной конфигурации
+     */
+    suspend fun saveLastConfigurationId(configId: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                sharedPreferencesManager.saveLastConfigurationId(configId)
+            } catch (e: Exception) {
+                throw ConfigurationException("Ошибка при сохранении ID последней конфигурации: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Получает последнюю использованную конфигурацию
+     */
+    suspend fun getLastConfiguration(): WorkConfiguration? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val lastConfigId = sharedPreferencesManager.getLastConfigurationId()
+                if (lastConfigId != null) {
+                    if (lastConfigId == "current") {
+                        // Загружаем текущую конфигурацию
+                        sharedPreferencesManager.getCurrentConfiguration()
+                    } else {
+                        // Загружаем сохраненную конфигурацию
+                        sharedPreferencesManager.getConfigurationById(lastConfigId)
+                    }
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    /**
+     * Сохраняет текущую конфигурацию
+     */
+    suspend fun saveCurrentConfiguration(configuration: WorkConfiguration) {
+        withContext(Dispatchers.IO) {
+            try {
+                sharedPreferencesManager.saveCurrentConfiguration(configuration)
+            } catch (e: Exception) {
+                throw ConfigurationException("Ошибка при сохранении текущей конфигурации: ${e.message}", e)
+            }
+        }
+    }
 }
 
 /**

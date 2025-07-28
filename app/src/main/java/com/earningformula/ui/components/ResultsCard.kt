@@ -16,12 +16,15 @@ import androidx.compose.ui.window.Dialog
 import com.earningformula.R
 import com.earningformula.data.models.TotalCalculationResult
 import com.earningformula.data.models.JobInputType
+import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.utils.SalaryCalculator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultsCard(
     totalResult: TotalCalculationResult?,
+    currentLoadedConfiguration: WorkConfiguration?,
+    originalLoadedConfiguration: WorkConfiguration?,
     onSaveConfiguration: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -176,6 +179,7 @@ fun ResultsCard(
     // Диалог сохранения конфигурации
     if (showSaveDialog) {
         SaveConfigurationDialog(
+            currentConfigurationName = originalLoadedConfiguration?.name,
             onDismiss = { showSaveDialog = false },
             onSave = { configName ->
                 onSaveConfiguration(configName)
@@ -259,10 +263,11 @@ private fun JobResultItem(
 
 @Composable
 private fun SaveConfigurationDialog(
+    currentConfigurationName: String?,
     onDismiss: () -> Unit,
     onSave: (String) -> Unit
 ) {
-    var configName by remember { mutableStateOf("") }
+    var configName by remember { mutableStateOf(currentConfigurationName ?: "") }
     
     Dialog(onDismissRequest = onDismiss) {
         Card(

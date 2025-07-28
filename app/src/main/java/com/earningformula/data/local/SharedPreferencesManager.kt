@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.earningformula.data.models.DayOfWeek
 import com.earningformula.data.models.Job
+import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
 import org.json.JSONArray
 import org.json.JSONObject
@@ -13,6 +14,7 @@ class SharedPreferencesManager {
         private const val PREFS_NAME = "earning_formula_prefs"
         private const val KEY_CONFIGURATIONS = "configurations"
         private const val KEY_LAST_CONFIGURATION_ID = "last_configuration_id"
+        private const val KEY_CURRENT_CONFIGURATION = "current_configuration"
 
         @Volatile
         private var INSTANCE: SharedPreferencesManager? = null
@@ -132,6 +134,32 @@ class SharedPreferencesManager {
     fun getLastConfigurationId(): String? {
         return sharedPreferences.getString(KEY_LAST_CONFIGURATION_ID, null)
     }
+
+    /**
+     * Сохраняет текущую конфигурацию
+     */
+    fun saveCurrentConfiguration(configuration: WorkConfiguration) {
+        val json = convertConfigurationToJson(configuration)
+        sharedPreferences.edit()
+            .putString(KEY_CURRENT_CONFIGURATION, json)
+            .apply()
+    }
+
+    /**
+     * Получает текущую конфигурацию
+     */
+    fun getCurrentConfiguration(): WorkConfiguration? {
+        val json = sharedPreferences.getString(KEY_CURRENT_CONFIGURATION, null)
+        return if (json != null) {
+            try {
+                parseConfigurationFromJson(json)
+            } catch (e: Exception) {
+                null
+            }
+        } else {
+            null
+        }
+    }
     
     /**
      * Сохраняет все конфигурации
@@ -141,6 +169,83 @@ class SharedPreferencesManager {
         sharedPreferences.edit()
             .putString(KEY_CONFIGURATIONS, json)
             .apply()
+    }
+
+    /**
+     * Конвертирует одну конфигурацию в JSON
+     */
+    private fun convertConfigurationToJson(configuration: WorkConfiguration): String {
+        val configJson = JSONObject().apply {
+            put("id", configuration.id)
+            put("name", configuration.name)
+            put("createdAt", configuration.createdAt)
+
+            val jobsArray = JSONArray()
+            configuration.jobs.forEach { job ->
+                val jobJson = JSONObject().apply {
+                    put("id", job.id)
+                    put("name", job.name)
+                    put("monthlySalary", job.monthlySalary)
+                    put("inputType", job.inputType.name)
+                    put("totalMonthlyHours", job.totalMonthlyHours)
+
+                    val hoursJson = JSONObject()
+                    job.hoursPerDay.forEach { (day, hours) ->
+                        hoursJson.put(day.name, hours)
+                    }
+                    put("hoursPerDay", hoursJson)
+                }
+                jobsArray.put(jobJson)
+            }
+            put("jobs", jobsArray)
+        }
+
+        return configJson.toString()
+    }
+
+    /**
+     * Парсит одну конфигурацию из JSON
+     */
+    private fun parseConfigurationFromJson(json: String): WorkConfiguration {
+        val configJson = JSONObject(json)
+
+        val jobs = mutableListOf<Job>()
+        val jobsArray = configJson.getJSONArray("jobs")
+
+        for (j in 0 until jobsArray.length()) {
+            val jobJson = jobsArray.getJSONObject(j)
+
+            val hoursPerDay = mutableMapOf<DayOfWeek, Double>()
+            val hoursJson = jobJson.getJSONObject("hoursPerDay")
+
+            DayOfWeek.values().forEach { day ->
+                hoursPerDay[day] = hoursJson.optDouble(day.name, 0.0)
+            }
+
+            val inputTypeString = jobJson.optString("inputType", JobInputType.DAILY_HOURS.name)
+            val inputType = try {
+                JobInputType.valueOf(inputTypeString)
+            } catch (e: Exception) {
+                JobInputType.DAILY_HOURS
+            }
+
+            val job = Job(
+                id = jobJson.getString("id"),
+                name = jobJson.getString("name"),
+                monthlySalary = jobJson.getDouble("monthlySalary"),
+                inputType = inputType,
+                hoursPerDay = hoursPerDay,
+                totalMonthlyHours = jobJson.optDouble("totalMonthlyHours", 0.0)
+            )
+            jobs.add(job)
+        }
+
+        return WorkConfiguration(
+            id = configJson.getString("id"),
+            name = configJson.getString("name"),
+            jobs = jobs,
+            createdAt = configJson.getLong("createdAt")
+        )
     }
     
     /**
@@ -161,7 +266,9 @@ class SharedPreferencesManager {
                         put("id", job.id)
                         put("name", job.name)
                         put("monthlySalary", job.monthlySalary)
-                        
+                        put("inputType", job.inputType.name)
+                        put("totalMonthlyHours", job.totalMonthlyHours)
+
                         val hoursJson = JSONObject()
                         job.hoursPerDay.forEach { (day, hours) ->
                             hoursJson.put(day.name, hours)
@@ -202,11 +309,20 @@ class SharedPreferencesManager {
                         hoursPerDay[day] = hoursJson.optDouble(day.name, 0.0)
                     }
                     
+                    val inputTypeString = jobJson.optString("inputType", JobInputType.DAILY_HOURS.name)
+                    val inputType = try {
+                        JobInputType.valueOf(inputTypeString)
+                    } catch (e: Exception) {
+                        JobInputType.DAILY_HOURS
+                    }
+
                     val job = Job(
                         id = jobJson.getString("id"),
                         name = jobJson.getString("name"),
                         monthlySalary = jobJson.getDouble("monthlySalary"),
-                        hoursPerDay = hoursPerDay
+                        inputType = inputType,
+                        hoursPerDay = hoursPerDay,
+                        totalMonthlyHours = jobJson.optDouble("totalMonthlyHours", 0.0)
                     )
                     jobs.add(job)
                 }
