@@ -16,6 +16,7 @@ import androidx.compose.ui.window.Dialog
 import com.earningformula.R
 import com.earningformula.data.models.DayOfWeek
 import com.earningformula.data.models.Job
+import com.earningformula.data.models.JobInputType
 import com.earningformula.utils.SalaryCalculator
 import java.util.*
 
@@ -28,11 +29,13 @@ fun AddJobDialog(
 ) {
     var jobName by remember { mutableStateOf(job?.name ?: "") }
     var monthlySalary by remember { mutableStateOf(job?.monthlySalary?.toString() ?: "") }
-    var hoursPerDay by remember { 
+    var inputType by remember { mutableStateOf(job?.inputType ?: JobInputType.DAILY_HOURS) }
+    var hoursPerDay by remember {
         mutableStateOf(
             job?.hoursPerDay?.mapValues { it.value.toString() } ?: DayOfWeek.values().associateWith { "0" }
         )
     }
+    var totalMonthlyHours by remember { mutableStateOf(job?.totalMonthlyHours?.toString() ?: "") }
     var errors by remember { mutableStateOf<List<String>>(emptyList()) }
     
     val isEditing = job != null
@@ -81,13 +84,53 @@ fun AddJobDialog(
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Часы по дням недели
-                Text(
-                    text = stringResource(R.string.hours_per_day),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
+
+                // Переключатель типа ввода
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Ввести общие часы",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(
+                        checked = inputType == JobInputType.TOTAL_MONTHLY_HOURS,
+                        onCheckedChange = { isChecked ->
+                            inputType = if (isChecked) JobInputType.TOTAL_MONTHLY_HOURS else JobInputType.DAILY_HOURS
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (inputType == JobInputType.TOTAL_MONTHLY_HOURS) {
+                    // Общие часы в месяц
+                    Text(
+                        text = "Общие часы работы",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = totalMonthlyHours,
+                        onValueChange = { totalMonthlyHours = it },
+                        label = { Text("Часов в месяц") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        suffix = { Text("ч") }
+                    )
+                } else {
+                    // Часы по дням недели
+                    Text(
+                        text = stringResource(R.string.hours_per_day),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
@@ -172,7 +215,8 @@ fun AddJobDialog(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                
+                } // Закрытие блока else для часов по дням
+
                 // Показ ошибок
                 if (errors.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -213,8 +257,16 @@ fun AddJobDialog(
                                     id = job?.id ?: UUID.randomUUID().toString(),
                                     name = jobName.trim(),
                                     monthlySalary = monthlySalary.toDoubleOrNull() ?: 0.0,
-                                    hoursPerDay = hoursPerDay.mapValues { 
-                                        it.value.toDoubleOrNull() ?: 0.0 
+                                    inputType = inputType,
+                                    hoursPerDay = if (inputType == JobInputType.DAILY_HOURS) {
+                                        hoursPerDay.mapValues { it.value.toDoubleOrNull() ?: 0.0 }
+                                    } else {
+                                        DayOfWeek.values().associateWith { 0.0 }
+                                    },
+                                    totalMonthlyHours = if (inputType == JobInputType.TOTAL_MONTHLY_HOURS) {
+                                        totalMonthlyHours.toDoubleOrNull() ?: 0.0
+                                    } else {
+                                        0.0
                                     }
                                 )
                             } catch (e: Exception) {

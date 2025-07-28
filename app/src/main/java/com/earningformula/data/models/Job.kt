@@ -8,6 +8,7 @@ data class Job(
     val id: String = "",
     val name: String = "",
     val monthlySalary: Double = 0.0,
+    val inputType: JobInputType = JobInputType.DAILY_HOURS,
     val hoursPerDay: Map<DayOfWeek, Double> = mapOf(
         DayOfWeek.MONDAY to 0.0,
         DayOfWeek.TUESDAY to 0.0,
@@ -16,15 +17,22 @@ data class Job(
         DayOfWeek.FRIDAY to 0.0,
         DayOfWeek.SATURDAY to 0.0,
         DayOfWeek.SUNDAY to 0.0
-    )
+    ),
+    val totalMonthlyHours: Double = 0.0
 ) : Parcelable {
     
     fun getWeeklyHours(): Double {
-        return hoursPerDay.values.sum()
+        return when (inputType) {
+            JobInputType.DAILY_HOURS -> hoursPerDay.values.sum()
+            JobInputType.TOTAL_MONTHLY_HOURS -> totalMonthlyHours / 4.3
+        }
     }
-    
+
     fun getMonthlyHours(): Double {
-        return getWeeklyHours() * 4.3 // 4.3 недели в месяце в среднем
+        return when (inputType) {
+            JobInputType.DAILY_HOURS -> getWeeklyHours() * 4.3
+            JobInputType.TOTAL_MONTHLY_HOURS -> totalMonthlyHours
+        }
     }
     
     fun getHourlyRate(): Double {
@@ -33,20 +41,26 @@ data class Job(
     }
     
     fun getWeekdayHours(): Double {
-        return listOf(
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY
-        ).sumOf { hoursPerDay[it] ?: 0.0 }
+        return when (inputType) {
+            JobInputType.DAILY_HOURS -> listOf(
+                DayOfWeek.MONDAY,
+                DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY
+            ).sumOf { hoursPerDay[it] ?: 0.0 }
+            JobInputType.TOTAL_MONTHLY_HOURS -> totalMonthlyHours * (5.0 / 7.0) / 4.3 // Пропорционально будним дням
+        }
     }
-    
+
     fun getWeekendHours(): Double {
-        return listOf(
-            DayOfWeek.SATURDAY,
-            DayOfWeek.SUNDAY
-        ).sumOf { hoursPerDay[it] ?: 0.0 }
+        return when (inputType) {
+            JobInputType.DAILY_HOURS -> listOf(
+                DayOfWeek.SATURDAY,
+                DayOfWeek.SUNDAY
+            ).sumOf { hoursPerDay[it] ?: 0.0 }
+            JobInputType.TOTAL_MONTHLY_HOURS -> totalMonthlyHours * (2.0 / 7.0) / 4.3 // Пропорционально выходным дням
+        }
     }
 }
 
@@ -58,4 +72,9 @@ enum class DayOfWeek(val displayName: String) {
     FRIDAY("Пт"),
     SATURDAY("Сб"),
     SUNDAY("Вс")
+}
+
+enum class JobInputType(val displayName: String) {
+    DAILY_HOURS("По часам в день"),
+    TOTAL_MONTHLY_HOURS("Общие часы в месяц")
 }

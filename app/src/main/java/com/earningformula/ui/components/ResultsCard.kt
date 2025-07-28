@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.earningformula.R
 import com.earningformula.data.models.TotalCalculationResult
+import com.earningformula.data.models.JobInputType
 import com.earningformula.utils.SalaryCalculator
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -231,7 +232,10 @@ private fun JobResultItem(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "${SalaryCalculator.formatHours(jobResult.weeklyHours)} ч/нед",
+                    text = when (jobResult.job.inputType) {
+                        JobInputType.DAILY_HOURS -> "${SalaryCalculator.formatHours(jobResult.weeklyHours)} ч/нед"
+                        JobInputType.TOTAL_MONTHLY_HOURS -> "${SalaryCalculator.formatHours(jobResult.job.totalMonthlyHours)} ч/мес"
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

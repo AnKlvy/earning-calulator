@@ -2,6 +2,7 @@ package com.earningformula.utils
 
 import com.earningformula.data.models.DayOfWeek
 import com.earningformula.data.models.Job
+import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.CalculationResult
 import com.earningformula.data.models.TotalCalculationResult
@@ -16,17 +17,22 @@ object SalaryCalculator {
      * Рассчитывает часы работы за неделю для конкретной работы
      */
     fun calculateWeeklyHours(job: Job): Double {
-        return job.hoursPerDay.values.sum()
+        return when (job.inputType) {
+            JobInputType.DAILY_HOURS -> job.hoursPerDay.values.sum()
+            JobInputType.TOTAL_MONTHLY_HOURS -> job.totalMonthlyHours / WEEKS_PER_MONTH
+        }
     }
-    
+
     /**
      * Рассчитывает часы работы за месяц для конкретной работы
-     * Формула: часы за неделю * 4.3
      */
     fun calculateMonthlyHours(job: Job): Double {
-        return calculateWeeklyHours(job) * WEEKS_PER_MONTH
+        return when (job.inputType) {
+            JobInputType.DAILY_HOURS -> calculateWeeklyHours(job) * WEEKS_PER_MONTH
+            JobInputType.TOTAL_MONTHLY_HOURS -> job.totalMonthlyHours
+        }
     }
-    
+
     /**
      * Рассчитывает почасовую ставку для конкретной работы
      * Формула: зарплата в месяц / часы в месяц
@@ -35,27 +41,43 @@ object SalaryCalculator {
         val monthlyHours = calculateMonthlyHours(job)
         return if (monthlyHours > 0) job.monthlySalary / monthlyHours else 0.0
     }
-    
+
     /**
      * Рассчитывает часы работы в будние дни (Пн-Пт)
      */
     fun calculateWeekdayHours(job: Job): Double {
-        val weekdays = listOf(
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY
-        )
-        return weekdays.sumOf { job.hoursPerDay[it] ?: 0.0 }
+        return when (job.inputType) {
+            JobInputType.DAILY_HOURS -> {
+                val weekdays = listOf(
+                    DayOfWeek.MONDAY,
+                    DayOfWeek.TUESDAY,
+                    DayOfWeek.WEDNESDAY,
+                    DayOfWeek.THURSDAY,
+                    DayOfWeek.FRIDAY
+                )
+                weekdays.sumOf { job.hoursPerDay[it] ?: 0.0 }
+            }
+            JobInputType.TOTAL_MONTHLY_HOURS -> {
+                // Пропорционально будним дням (5 из 7 дней недели)
+                job.totalMonthlyHours * (5.0 / 7.0) / WEEKS_PER_MONTH
+            }
+        }
     }
-    
+
     /**
      * Рассчитывает часы работы в выходные дни (Сб-Вс)
      */
     fun calculateWeekendHours(job: Job): Double {
-        val weekends = listOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
-        return weekends.sumOf { job.hoursPerDay[it] ?: 0.0 }
+        return when (job.inputType) {
+            JobInputType.DAILY_HOURS -> {
+                val weekends = listOf(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)
+                weekends.sumOf { job.hoursPerDay[it] ?: 0.0 }
+            }
+            JobInputType.TOTAL_MONTHLY_HOURS -> {
+                // Пропорционально выходным дням (2 из 7 дней недели)
+                job.totalMonthlyHours * (2.0 / 7.0) / WEEKS_PER_MONTH
+            }
+        }
     }
     
     /**
@@ -123,34 +145,47 @@ object SalaryCalculator {
      */
     fun validateJob(job: Job): List<String> {
         val errors = mutableListOf<String>()
-        
+
         if (job.name.isBlank()) {
             errors.add("Название работы не может быть пустым")
         }
-        
+
         if (job.monthlySalary <= 0) {
             errors.add("Зарплата должна быть больше 0")
         }
-        
-        val totalHours = calculateWeeklyHours(job)
-        if (totalHours <= 0) {
-            errors.add("Общее количество часов в неделю должно быть больше 0")
-        }
-        
-        if (totalHours > 168) { // 24 часа * 7 дней
-            errors.add("Общее количество часов в неделю не может превышать 168")
-        }
-        
-        // Проверяем, что часы в день не превышают 24
-        job.hoursPerDay.forEach { (day, hours) ->
-            if (hours > 24) {
-                errors.add("Часы в ${day.displayName} не могут превышать 24")
+
+        when (job.inputType) {
+            JobInputType.DAILY_HOURS -> {
+                val totalHours = calculateWeeklyHours(job)
+                if (totalHours <= 0) {
+                    errors.add("Общее количество часов в неделю должно быть больше 0")
+                }
+
+                if (totalHours > 168) { // 24 часа * 7 дней
+                    errors.add("Общее количество часов в неделю не может превышать 168")
+                }
+
+                // Проверяем, что часы в день не превышают 24
+                job.hoursPerDay.forEach { (day, hours) ->
+                    if (hours > 24) {
+                        errors.add("Часы в ${day.displayName} не могут превышать 24")
+                    }
+                    if (hours < 0) {
+                        errors.add("Часы в ${day.displayName} не могут быть отрицательными")
+                    }
+                }
             }
-            if (hours < 0) {
-                errors.add("Часы в ${day.displayName} не могут быть отрицательными")
+            JobInputType.TOTAL_MONTHLY_HOURS -> {
+                if (job.totalMonthlyHours <= 0) {
+                    errors.add("Общее количество часов в месяц должно быть больше 0")
+                }
+
+                if (job.totalMonthlyHours > 744) { // 31 день * 24 часа
+                    errors.add("Общее количество часов в месяц не может превышать 744")
+                }
             }
         }
-        
+
         return errors
     }
     
@@ -162,15 +197,8 @@ object SalaryCalculator {
             id = "1",
             name = "Фриланс заказ",
             monthlySalary = 240000.0,
-            hoursPerDay = mapOf(
-                DayOfWeek.MONDAY to 4.5,
-                DayOfWeek.TUESDAY to 4.5,
-                DayOfWeek.WEDNESDAY to 4.5,
-                DayOfWeek.THURSDAY to 4.5,
-                DayOfWeek.FRIDAY to 4.5,
-                DayOfWeek.SATURDAY to 8.0,
-                DayOfWeek.SUNDAY to 8.0
-            )
+            inputType = JobInputType.TOTAL_MONTHLY_HOURS,
+            totalMonthlyHours = 120.0
         )
 
         val mainJob = Job(

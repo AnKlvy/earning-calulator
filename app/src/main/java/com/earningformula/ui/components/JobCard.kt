@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.earningformula.R
 import com.earningformula.data.models.Job
+import com.earningformula.data.models.JobInputType
 import com.earningformula.utils.SalaryCalculator
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,17 +76,31 @@ fun JobCard(
                         value = SalaryCalculator.formatMoney(job.monthlySalary)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    InfoItem(
-                        label = stringResource(R.string.weekly_hours) + ":",
-                        value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " ч"
-                    )
+                    if (job.inputType == JobInputType.DAILY_HOURS) {
+                        InfoItem(
+                            label = stringResource(R.string.weekly_hours) + ":",
+                            value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " ч"
+                        )
+                    } else {
+                        InfoItem(
+                            label = "Общие часы работы:",
+                            value = SalaryCalculator.formatHours(job.totalMonthlyHours) + " ч"
+                        )
+                    }
                 }
-                
+
                 Column(modifier = Modifier.weight(1f)) {
-                    InfoItem(
-                        label = stringResource(R.string.monthly_hours) + ":",
-                        value = SalaryCalculator.formatHours(job.getMonthlyHours()) + " ч"
-                    )
+                    if (job.inputType == JobInputType.DAILY_HOURS) {
+                        InfoItem(
+                            label = stringResource(R.string.monthly_hours) + ":",
+                            value = SalaryCalculator.formatHours(job.getMonthlyHours()) + " ч"
+                        )
+                    } else {
+                        InfoItem(
+                            label = "Часов в неделю:",
+                            value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " ч"
+                        )
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
                     InfoItem(
                         label = stringResource(R.string.hourly_rate) + ":",
@@ -96,13 +111,14 @@ fun JobCard(
             }
             
             Spacer(modifier = Modifier.height(12.dp))
-            
-            // Часы по дням недели
-            Text(
-                text = "Часы по дням:",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium
-            )
+
+            // Часы по дням недели (только для ежедневного ввода)
+            if (job.inputType == JobInputType.DAILY_HOURS) {
+                Text(
+                    text = "Часы по дням:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium
+                )
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -143,6 +159,7 @@ fun JobCard(
                     )
                 }
             }
+            } // Закрытие блока if для часов по дням
         }
     }
     
