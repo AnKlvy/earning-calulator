@@ -8,15 +8,15 @@ object LocalizationHelper {
     
     fun getAppTitle(language: Language): String {
         return when (language) {
-            Language.RUSSIAN -> "Калькулятор зарплаты"
-            Language.ENGLISH -> "Salary Calculator"
-            Language.SPANISH -> "Calculadora de Salario"
-            Language.KAZAKH -> "Жалақы калькуляторы"
-            Language.GERMAN -> "Gehaltsrechner"
-            Language.FRENCH -> "Calculateur de Salaire"
-            Language.CHINESE -> "工资计算器"
-            Language.HINDI -> "वेतन कैलकुलेटर"
-            Language.ARABIC -> "حاسبة الراتب"
+            Language.RUSSIAN -> "Калькулятор заработка"
+            Language.ENGLISH -> "Earnings Calculator"
+            Language.SPANISH -> "Calculadora de Ingresos"
+            Language.KAZAKH -> "Табыс калькуляторы"
+            Language.GERMAN -> "Einkommensrechner"
+            Language.FRENCH -> "Calculateur de Revenus"
+            Language.CHINESE -> "收入计算器"
+            Language.HINDI -> "आय कैलकुलेटर"
+            Language.ARABIC -> "حاسبة الدخل"
         }
     }
     
@@ -64,15 +64,15 @@ object LocalizationHelper {
     
     fun getMonthlySalary(language: Language): String {
         return when (language) {
-            Language.RUSSIAN -> "Зарплата в месяц"
-            Language.ENGLISH -> "Monthly Salary"
-            Language.SPANISH -> "Salario Mensual"
-            Language.KAZAKH -> "Айлық жалақы"
-            Language.GERMAN -> "Monatsgehalt"
-            Language.FRENCH -> "Salaire Mensuel"
-            Language.CHINESE -> "月薪"
-            Language.HINDI -> "मासिक वेतन"
-            Language.ARABIC -> "الراتب الشهري"
+            Language.RUSSIAN -> "Заработок в месяц"
+            Language.ENGLISH -> "Monthly Earnings"
+            Language.SPANISH -> "Ingresos Mensuales"
+            Language.KAZAKH -> "Айлық табыс"
+            Language.GERMAN -> "Monatseinkommen"
+            Language.FRENCH -> "Revenus Mensuels"
+            Language.CHINESE -> "月收入"
+            Language.HINDI -> "मासिक आय"
+            Language.ARABIC -> "الدخل الشهري"
         }
     }
     
@@ -346,15 +346,15 @@ object LocalizationHelper {
 
     fun getSalary(language: Language): String {
         return when (language) {
-            Language.RUSSIAN -> "Зарплата"
-            Language.ENGLISH -> "Salary"
-            Language.SPANISH -> "Salario"
-            Language.KAZAKH -> "Жалақы"
-            Language.GERMAN -> "Gehalt"
-            Language.FRENCH -> "Salaire"
-            Language.CHINESE -> "工资"
-            Language.HINDI -> "वेतन"
-            Language.ARABIC -> "الراتب"
+            Language.RUSSIAN -> "Заработок"
+            Language.ENGLISH -> "Earnings"
+            Language.SPANISH -> "Ingresos"
+            Language.KAZAKH -> "Табыс"
+            Language.GERMAN -> "Einkommen"
+            Language.FRENCH -> "Revenus"
+            Language.CHINESE -> "收入"
+            Language.HINDI -> "आय"
+            Language.ARABIC -> "الدخل"
         }
     }
 

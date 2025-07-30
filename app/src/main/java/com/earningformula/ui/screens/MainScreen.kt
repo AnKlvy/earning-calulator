@@ -181,6 +181,7 @@ fun MainScreen(
             if (uiState.jobs.isEmpty()) {
                 item {
                     Card(
+                        onClick = { showAddJobDialog = true },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp),
@@ -198,21 +199,15 @@ fun MainScreen(
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = null,
-                                    modifier = Modifier.size(32.dp),
+                                    modifier = Modifier.size(48.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
                                 Text(
                                     text = LocalizationHelper.getAddJob(uiState.selectedLanguage),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                TextButton(
-                                    onClick = { showAddJobDialog = true }
-                                ) {
-                                    Text(LocalizationHelper.getAddJob(uiState.selectedLanguage))
-                                }
                             }
                         }
                     }
