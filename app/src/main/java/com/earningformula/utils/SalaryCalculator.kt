@@ -6,6 +6,7 @@ import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.CalculationResult
 import com.earningformula.data.models.TotalCalculationResult
+import com.earningformula.data.models.Currency
 import java.text.DecimalFormat
 import kotlin.math.roundToInt
 
@@ -135,9 +136,9 @@ object SalaryCalculator {
     /**
      * Форматирует деньги для отображения
      */
-    fun formatMoney(amount: Double): String {
+    fun formatMoney(amount: Double, currency: Currency = Currency.RUB): String {
         val formatter = DecimalFormat("#,##0")
-        return "${formatter.format(amount)} ₽"
+        return "${formatter.format(amount)} ${currency.symbol}"
     }
     
     /**

@@ -14,6 +14,7 @@ import com.earningformula.R
 import com.earningformula.data.models.TotalCalculationResult
 import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
+import com.earningformula.data.models.Currency
 import com.earningformula.utils.SalaryCalculator
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -22,6 +23,7 @@ fun ResultsCard(
     totalResult: TotalCalculationResult?,
     currentLoadedConfiguration: WorkConfiguration?,
     originalLoadedConfiguration: WorkConfiguration?,
+    currency: Currency,
     modifier: Modifier = Modifier
 ) {
     
@@ -69,13 +71,13 @@ fun ResultsCard(
                 Column(modifier = Modifier.weight(1f)) {
                     ResultItem(
                         label = stringResource(R.string.total_monthly_salary),
-                        value = SalaryCalculator.formatMoney(totalResult.totalMonthlySalary),
+                        value = SalaryCalculator.formatMoney(totalResult.totalMonthlySalary, currency),
                         isHighlighted = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     ResultItem(
                         label = "Средняя ставка в час",
-                        value = "${SalaryCalculator.formatMoney(totalResult.averageHourlyRate)}/ч",
+                        value = "${SalaryCalculator.formatMoney(totalResult.averageHourlyRate, currency)}/ч",
                         isHighlighted = true
                     )
                 }
@@ -147,6 +149,7 @@ fun ResultsCard(
                 totalResult.jobResults.forEach { jobResult ->
                     JobResultItem(
                         jobResult = jobResult,
+                        currency = currency,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -181,6 +184,7 @@ private fun ResultItem(
 @Composable
 private fun JobResultItem(
     jobResult: com.earningformula.data.models.CalculationResult,
+    currency: Currency,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -214,12 +218,12 @@ private fun JobResultItem(
             
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = SalaryCalculator.formatMoney(jobResult.job.monthlySalary),
+                    text = SalaryCalculator.formatMoney(jobResult.job.monthlySalary, currency),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "${SalaryCalculator.formatMoney(jobResult.hourlyRate)}/ч",
+                    text = "${SalaryCalculator.formatMoney(jobResult.hourlyRate, currency)}/ч",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )

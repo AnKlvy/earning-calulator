@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.earningformula.data.models.Job
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.TotalCalculationResult
+import com.earningformula.data.models.Currency
 import com.earningformula.data.repository.ConfigurationRepository
 import com.earningformula.utils.SalaryCalculator
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ data class MainUiState(
     val savedConfigurations: List<WorkConfiguration> = emptyList(),
     val currentLoadedConfiguration: WorkConfiguration? = null,
     val originalLoadedConfiguration: WorkConfiguration? = null, // Оригинальная конфигурация до изменений
+    val selectedCurrency: Currency = Currency.RUB,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
@@ -33,6 +35,7 @@ class MainViewModel(
     
     init {
         loadSavedConfigurations()
+        loadSavedCurrency()
         // Загружаем последнюю конфигурацию или пример для демонстрации
         loadLastOrSampleConfiguration()
     }
@@ -561,6 +564,50 @@ class MainViewModel(
             _uiState.value = _uiState.value.copy(
                 currentLoadedConfiguration = modifiedConfig
             )
+        }
+    }
+
+    /**
+     * Изменяет валюту приложения
+     */
+    fun changeCurrency(currency: Currency) {
+        viewModelScope.launch {
+            try {
+                Log.d("MainViewModel", "Изменяем валюту на: ${currency.displayName}")
+
+                // Сохраняем в настройки
+                configurationRepository.saveCurrency(currency)
+
+                // Обновляем UI состояние
+                _uiState.value = _uiState.value.copy(
+                    selectedCurrency = currency
+                )
+
+                Log.d("MainViewModel", "Валюта успешно изменена")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при изменении валюты", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Ошибка при изменении валюты: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Загружает сохраненную валюту при инициализации
+     */
+    private fun loadSavedCurrency() {
+        viewModelScope.launch {
+            try {
+                val savedCurrency = configurationRepository.getCurrency()
+                _uiState.value = _uiState.value.copy(
+                    selectedCurrency = savedCurrency
+                )
+                Log.d("MainViewModel", "Загружена валюта: ${savedCurrency.displayName}")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при загрузке валюты", e)
+                // Используем валюту по умолчанию
+            }
         }
     }
 }

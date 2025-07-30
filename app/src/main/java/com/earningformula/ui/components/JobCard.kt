@@ -14,12 +14,14 @@ import androidx.compose.ui.unit.dp
 import com.earningformula.R
 import com.earningformula.data.models.Job
 import com.earningformula.data.models.JobInputType
+import com.earningformula.data.models.Currency
 import com.earningformula.utils.SalaryCalculator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobCard(
     job: Job,
+    currency: Currency,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -73,7 +75,7 @@ fun JobCard(
                 Column(modifier = Modifier.weight(1f)) {
                     InfoItem(
                         label = "Зарплата в месяц:",
-                        value = SalaryCalculator.formatMoney(job.monthlySalary)
+                        value = SalaryCalculator.formatMoney(job.monthlySalary, currency)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     if (job.inputType == JobInputType.DAILY_HOURS) {
@@ -104,7 +106,7 @@ fun JobCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     InfoItem(
                         label = stringResource(R.string.hourly_rate) + ":",
-                        value = SalaryCalculator.formatMoney(job.getHourlyRate()) + "/ч",
+                        value = SalaryCalculator.formatMoney(job.getHourlyRate(), currency) + "/ч",
                         valueColor = MaterialTheme.colorScheme.primary
                     )
                 }

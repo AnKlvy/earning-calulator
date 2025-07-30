@@ -7,6 +7,7 @@ import com.earningformula.data.models.DayOfWeek
 import com.earningformula.data.models.Job
 import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
+import com.earningformula.data.models.Currency
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -16,6 +17,7 @@ class SharedPreferencesManager {
         private const val KEY_CONFIGURATIONS = "configurations"
         private const val KEY_LAST_CONFIGURATION_ID = "last_configuration_id"
         private const val KEY_CURRENT_CONFIGURATION = "current_configuration"
+        private const val KEY_CURRENCY = "currency"
 
         @Volatile
         private var INSTANCE: SharedPreferencesManager? = null
@@ -368,5 +370,22 @@ class SharedPreferencesManager {
         } catch (e: Exception) {
             throw IllegalArgumentException("Ошибка при парсинге JSON: ${e.message}", e)
         }
+    }
+
+    /**
+     * Сохраняет выбранную валюту
+     */
+    fun saveCurrency(currency: Currency) {
+        sharedPreferences.edit()
+            .putString(KEY_CURRENCY, currency.code)
+            .apply()
+    }
+
+    /**
+     * Получает сохраненную валюту
+     */
+    fun getCurrency(): Currency {
+        val currencyCode = sharedPreferences.getString(KEY_CURRENCY, Currency.RUB.code)
+        return Currency.fromCode(currencyCode ?: Currency.RUB.code)
     }
 }

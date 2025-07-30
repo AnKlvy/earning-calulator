@@ -22,6 +22,7 @@ import com.earningformula.ui.components.AddJobDialog
 import com.earningformula.ui.components.ResultsCard
 import com.earningformula.ui.components.FavoritesDialog
 import com.earningformula.ui.components.CreateConfigurationDialog
+import com.earningformula.ui.components.CurrencySelectionDialog
 import com.earningformula.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +35,7 @@ fun MainScreen(
     var showFavoritesDialog by remember { mutableStateOf(false) }
     var showCreateConfigDialog by remember { mutableStateOf(false) }
     var showDropdownMenu by remember { mutableStateOf(false) }
+    var showCurrencyDialog by remember { mutableStateOf(false) }
     var jobToEdit by remember { mutableStateOf<Job?>(null) }
 
     Column(
@@ -54,6 +56,16 @@ fun MainScreen(
             )
             
             Row {
+                // Кнопка выбора валюты
+                TextButton(
+                    onClick = { showCurrencyDialog = true }
+                ) {
+                    Text(
+                        text = uiState.selectedCurrency.symbol,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
+
                 IconButton(onClick = { showFavoritesDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
@@ -117,6 +129,7 @@ fun MainScreen(
             items(uiState.jobs) { job ->
                 JobCard(
                     job = job,
+                    currency = uiState.selectedCurrency,
                     onEditClick = { jobToEdit = job },
                     onDeleteClick = { viewModel.deleteJob(job.id) }
                 )
@@ -171,7 +184,8 @@ fun MainScreen(
                     ResultsCard(
                         totalResult = uiState.totalResult,
                         currentLoadedConfiguration = uiState.currentLoadedConfiguration,
-                        originalLoadedConfiguration = uiState.originalLoadedConfiguration
+                        originalLoadedConfiguration = uiState.originalLoadedConfiguration,
+                        currency = uiState.selectedCurrency
                     )
                 }
             }
@@ -224,7 +238,19 @@ fun MainScreen(
             }
         )
     }
-    
+
+    // Диалог выбора валюты
+    if (showCurrencyDialog) {
+        CurrencySelectionDialog(
+            currentCurrency = uiState.selectedCurrency,
+            onCurrencySelected = { currency ->
+                viewModel.changeCurrency(currency)
+                showCurrencyDialog = false
+            },
+            onDismiss = { showCurrencyDialog = false }
+        )
+    }
+
     // Показ ошибок
     uiState.errorMessage?.let { error ->
         LaunchedEffect(error) {

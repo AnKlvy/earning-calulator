@@ -2,6 +2,7 @@ package com.earningformula.data.repository
 
 import com.earningformula.data.local.SharedPreferencesManager
 import com.earningformula.data.models.WorkConfiguration
+import com.earningformula.data.models.Currency
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -196,6 +197,31 @@ class ConfigurationRepository(
                 sharedPreferencesManager.saveCurrentConfiguration(configuration)
             } catch (e: Exception) {
                 throw ConfigurationException("Ошибка при сохранении текущей конфигурации: ${e.message}", e)
+            }
+        }
+    }
+    /**
+     * Сохраняет выбранную валюту
+     */
+    suspend fun saveCurrency(currency: Currency) {
+        withContext(Dispatchers.IO) {
+            try {
+                sharedPreferencesManager.saveCurrency(currency)
+            } catch (e: Exception) {
+                throw ConfigurationException("Ошибка при сохранении валюты: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Получает сохраненную валюту
+     */
+    suspend fun getCurrency(): Currency {
+        return withContext(Dispatchers.IO) {
+            try {
+                sharedPreferencesManager.getCurrency()
+            } catch (e: Exception) {
+                throw ConfigurationException("Ошибка при загрузке валюты: ${e.message}", e)
             }
         }
     }
