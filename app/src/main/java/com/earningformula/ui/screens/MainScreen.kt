@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +21,7 @@ import com.earningformula.ui.components.JobCard
 import com.earningformula.ui.components.AddJobDialog
 import com.earningformula.ui.components.ResultsCard
 import com.earningformula.ui.components.FavoritesDialog
+import com.earningformula.ui.components.CreateConfigurationDialog
 import com.earningformula.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +32,8 @@ fun MainScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showAddJobDialog by remember { mutableStateOf(false) }
     var showFavoritesDialog by remember { mutableStateOf(false) }
+    var showCreateConfigDialog by remember { mutableStateOf(false) }
+    var showDropdownMenu by remember { mutableStateOf(false) }
     var jobToEdit by remember { mutableStateOf<Job?>(null) }
 
     Column(
@@ -56,15 +60,49 @@ fun MainScreen(
                         contentDescription = stringResource(R.string.favorites)
                     )
                 }
-                
-                FloatingActionButton(
-                    onClick = { showAddJobDialog = true },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_job)
-                    )
+
+                Box {
+                    FloatingActionButton(
+                        onClick = { showDropdownMenu = true },
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Меню добавления"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = showDropdownMenu,
+                        onDismissRequest = { showDropdownMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Новая конфигурация") },
+                            onClick = {
+                                showDropdownMenu = false
+                                showCreateConfigDialog = true
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Добавить работу") },
+                            onClick = {
+                                showDropdownMenu = false
+                                showAddJobDialog = true
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -133,10 +171,7 @@ fun MainScreen(
                     ResultsCard(
                         totalResult = uiState.totalResult,
                         currentLoadedConfiguration = uiState.currentLoadedConfiguration,
-                        originalLoadedConfiguration = uiState.originalLoadedConfiguration,
-                        onSaveConfiguration = { configName ->
-                            viewModel.saveConfiguration(configName)
-                        }
+                        originalLoadedConfiguration = uiState.originalLoadedConfiguration
                     )
                 }
             }
@@ -175,6 +210,17 @@ fun MainScreen(
             },
             onDeleteConfiguration = { configId ->
                 viewModel.deleteConfiguration(configId)
+                // Диалог остается открытым, чтобы пользователь мог видеть обновленный список
+            }
+        )
+    }
+
+    if (showCreateConfigDialog) {
+        CreateConfigurationDialog(
+            onDismiss = { showCreateConfigDialog = false },
+            onCreateConfiguration = { configName ->
+                viewModel.createNewConfigurationWithName(configName)
+                showCreateConfigDialog = false
             }
         )
     }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.util.Log
 import java.util.*
 
 data class MainUiState(
@@ -49,13 +50,15 @@ class MainViewModel(
                     )
                     return@launch
                 }
-                
+
+                Log.d("MainViewModel", "Добавляем работу: ${job.name}")
+
                 val currentJobs = _uiState.value.jobs.toMutableList()
                 currentJobs.add(job)
 
                 updateJobsAndRecalculate(currentJobs)
-                saveCurrentConfigurationChanges()
-                
+                updateCurrentConfiguration() // Используем единый метод
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Ошибка при добавлении работы: ${e.message}"
@@ -77,20 +80,22 @@ class MainViewModel(
                     )
                     return@launch
                 }
-                
+
+                Log.d("MainViewModel", "Обновляем работу: ${updatedJob.name}")
+
                 val currentJobs = _uiState.value.jobs.toMutableList()
                 val index = currentJobs.indexOfFirst { it.id == updatedJob.id }
-                
+
                 if (index != -1) {
                     currentJobs[index] = updatedJob
                     updateJobsAndRecalculate(currentJobs)
-                    saveCurrentConfigurationChanges()
+                    updateCurrentConfiguration() // Используем единый метод
                 } else {
                     _uiState.value = _uiState.value.copy(
                         errorMessage = "Работа не найдена для обновления"
                     )
                 }
-                
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Ошибка при обновлении работы: ${e.message}"
@@ -105,12 +110,14 @@ class MainViewModel(
     fun deleteJob(jobId: String) {
         viewModelScope.launch {
             try {
+                Log.d("MainViewModel", "Удаляем работу с ID: $jobId")
+
                 val currentJobs = _uiState.value.jobs.toMutableList()
                 currentJobs.removeAll { it.id == jobId }
 
                 updateJobsAndRecalculate(currentJobs)
-                saveCurrentConfigurationChanges()
-                
+                updateCurrentConfiguration() // Используем единый метод
+
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Ошибка при удалении работы: ${e.message}"
@@ -183,26 +190,16 @@ class MainViewModel(
      * Загружает конфигурацию из избранного
      */
     fun loadConfiguration(configuration: WorkConfiguration) {
-        // Сначала сохраняем текущие изменения (если есть)
-        saveCurrentConfigurationChanges()
+        try {
+            Log.d("MainViewModel", "Загружаем конфигурацию: ${configuration.name} (${configuration.id})")
 
-        viewModelScope.launch {
-            try {
-                // Затем загружаем новую конфигурацию
-                updateJobsAndRecalculate(configuration.jobs)
-                // Сохраняем информацию о загруженной конфигурации
-                _uiState.value = _uiState.value.copy(
-                    currentLoadedConfiguration = configuration,
-                    originalLoadedConfiguration = configuration // Сохраняем оригинал
-                )
-                // Сохраняем ID последней загруженной конфигурации
-                configurationRepository.saveLastConfigurationId(configuration.id)
+            // Используем единый метод установки конфигурации
+            setCurrentConfiguration(configuration)
 
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Ошибка при загрузке конфигурации: ${e.message}"
-                )
-            }
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                errorMessage = "Ошибка при загрузке конфигурации: ${e.message}"
+            )
         }
     }
     
@@ -247,13 +244,125 @@ class MainViewModel(
      */
     fun clearAllJobs() {
         viewModelScope.launch {
+            Log.d("MainViewModel", "Очищаем все работы")
             updateJobsAndRecalculate(emptyList())
-            saveCurrentConfigurationChanges()
+            updateCurrentConfiguration() // Используем единый метод
             // Сбрасываем информацию о загруженной конфигурации
             _uiState.value = _uiState.value.copy(
                 currentLoadedConfiguration = null,
                 originalLoadedConfiguration = null
             )
+        }
+    }
+
+    /**
+     * Создает новую конфигурацию (очищает текущую)
+     */
+    fun createNewConfiguration() {
+        viewModelScope.launch {
+            try {
+                // ВАЖНО: Сначала сохраняем текущие изменения, если есть работы
+                val currentJobs = _uiState.value.jobs
+                if (currentJobs.isNotEmpty()) {
+                    updateCurrentConfiguration()
+                }
+
+                // Создаем пустую "текущую" конфигурацию
+                val emptyCurrentConfig = WorkConfiguration(
+                    id = "current",
+                    name = "Новая конфигурация",
+                    jobs = emptyList()
+                )
+
+                // Очищаем все работы и сбрасываем конфигурацию
+                updateJobsAndRecalculate(emptyList())
+                _uiState.value = _uiState.value.copy(
+                    currentLoadedConfiguration = emptyCurrentConfig,
+                    originalLoadedConfiguration = emptyCurrentConfig
+                )
+
+                // Сохраняем пустую текущую конфигурацию и устанавливаем как последнюю
+                configurationRepository.saveCurrentConfiguration(emptyCurrentConfig)
+                configurationRepository.saveLastConfigurationId("current")
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Ошибка при создании новой конфигурации: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Создает новую конфигурацию с заданным именем и сохраняет в избранное
+     */
+    fun createNewConfigurationWithName(name: String) {
+        viewModelScope.launch {
+            try {
+                Log.d("MainViewModel", "Создание новой конфигурации с именем: $name")
+
+                if (name.isBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Название конфигурации не может быть пустым"
+                    )
+                    return@launch
+                }
+
+                // При создании новой конфигурации НЕ сохраняем текущие изменения
+                // Пользователь явно хочет создать новую конфигурацию, значит текущие изменения не нужны
+                Log.d("MainViewModel", "Создаем новую конфигурацию, текущие изменения будут сброшены")
+
+                val trimmedName = name.trim()
+
+                // Создаем новую конфигурацию с заданным именем
+                val newConfiguration = WorkConfiguration(
+                    id = UUID.randomUUID().toString(),
+                    name = trimmedName,
+                    jobs = emptyList()
+                )
+
+                Log.d("MainViewModel", "Создана конфигурация: ${newConfiguration.id}, имя: ${newConfiguration.name}")
+
+                // Сохраняем новую конфигурацию в избранное
+                configurationRepository.saveConfiguration(newConfiguration)
+                Log.d("MainViewModel", "Конфигурация сохранена в репозиторий")
+
+                // Устанавливаем как текущую конфигурацию (единый метод)
+                setCurrentConfiguration(newConfiguration)
+
+                // Обновляем список сохраненных конфигураций
+                loadSavedConfigurations()
+
+                Log.d("MainViewModel", "Список конфигураций обновлен. Всего: ${_uiState.value.savedConfigurations.size}")
+
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при создании конфигурации", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Ошибка при создании новой конфигурации: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Принудительно загружает текущую сохраненную конфигурацию (для восстановления данных)
+     */
+    fun loadCurrentConfiguration() {
+        viewModelScope.launch {
+            try {
+                val currentConfig = configurationRepository.getLastConfiguration()
+                if (currentConfig != null) {
+                    updateJobsAndRecalculate(currentConfig.jobs)
+                    _uiState.value = _uiState.value.copy(
+                        currentLoadedConfiguration = currentConfig,
+                        originalLoadedConfiguration = currentConfig
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Ошибка при загрузке текущей конфигурации: ${e.message}"
+                )
+            }
         }
     }
     
@@ -264,15 +373,20 @@ class MainViewModel(
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true)
-                
+
                 val configurations = configurationRepository.getAllConfigurations()
-                
+                Log.d("MainViewModel", "Загружено конфигураций: ${configurations.size}")
+                configurations.forEach { config ->
+                    Log.d("MainViewModel", "Конфигурация: ${config.name} (${config.id}), работ: ${config.jobs.size}")
+                }
+
                 _uiState.value = _uiState.value.copy(
                     savedConfigurations = configurations,
                     isLoading = false
                 )
-                
+
             } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при загрузке конфигураций", e)
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "Ошибка при загрузке сохраненных конфигураций: ${e.message}",
                     isLoading = false
@@ -357,64 +471,81 @@ class MainViewModel(
     }
 
     /**
-     * Сохраняет изменения в текущую конфигурацию
+     * ЕДИНЫЙ МЕТОД ДЛЯ УСТАНОВКИ ТЕКУЩЕЙ КОНФИГУРАЦИИ
+     * Устанавливает конфигурацию как текущую и обновляет UI
      */
-    private fun saveCurrentConfigurationChanges() {
+    private fun setCurrentConfiguration(configuration: WorkConfiguration) {
+        Log.d("MainViewModel", "Устанавливаем текущую конфигурацию: ${configuration.name} (${configuration.id})")
+
+        // Обновляем состояние UI
+        _uiState.value = _uiState.value.copy(
+            currentLoadedConfiguration = configuration,
+            originalLoadedConfiguration = configuration
+        )
+
+        // Загружаем работы из конфигурации
+        updateJobsAndRecalculate(configuration.jobs)
+
+        // Сохраняем как последнюю конфигурацию
         viewModelScope.launch {
             try {
-                val currentJobs = _uiState.value.jobs
-                if (currentJobs.isNotEmpty()) {
-                    val currentConfig = _uiState.value.currentLoadedConfiguration
-
-                    if (currentConfig != null) {
-                        // Обновляем конфигурацию с текущими работами
-                        val updatedConfig = currentConfig.copy(
-                            jobs = currentJobs
-                        )
-
-                        if (currentConfig.id == "current") {
-                            // Сохраняем как текущую конфигурацию
-                            configurationRepository.saveCurrentConfiguration(updatedConfig)
-                            configurationRepository.saveLastConfigurationId("current")
-                        } else {
-                            // Обновляем существующую сохраненную конфигурацию
-                            configurationRepository.updateConfiguration(updatedConfig)
-                            configurationRepository.saveLastConfigurationId(updatedConfig.id)
-                            // Обновляем список сохраненных конфигураций, чтобы показать актуальные данные
-                            loadSavedConfigurations()
-                        }
-
-                        // Обновляем состояние - ВАЖНО: обновляем и originalLoadedConfiguration
-                        _uiState.value = _uiState.value.copy(
-                            currentLoadedConfiguration = updatedConfig,
-                            originalLoadedConfiguration = updatedConfig // Обновляем оригинал после сохранения
-                        )
-                    } else {
-                        // Если нет загруженной конфигурации, создаем новую "текущую"
-                        val originalConfig = _uiState.value.originalLoadedConfiguration
-                        val configName = originalConfig?.name ?: "Текущая конфигурация"
-
-                        val newCurrentConfig = WorkConfiguration(
-                            id = "current",
-                            name = configName,
-                            jobs = currentJobs
-                        )
-
-                        configurationRepository.saveCurrentConfiguration(newCurrentConfig)
-                        configurationRepository.saveLastConfigurationId("current")
-
-                        // Обновляем состояние
-                        _uiState.value = _uiState.value.copy(
-                            currentLoadedConfiguration = newCurrentConfig,
-                            originalLoadedConfiguration = newCurrentConfig // Устанавливаем как оригинал
-                        )
-                    }
-                }
+                configurationRepository.saveLastConfigurationId(configuration.id)
             } catch (e: Exception) {
-                // Игнорируем ошибки автосохранения
+                Log.e("MainViewModel", "Ошибка при сохранении ID последней конфигурации", e)
             }
         }
     }
+
+    /**
+     * ЕДИНЫЙ МЕТОД ОБНОВЛЕНИЯ ТЕКУЩЕЙ КОНФИГУРАЦИИ
+     * Все изменения работ должны идти через этот метод
+     */
+    private fun updateCurrentConfiguration() {
+        viewModelScope.launch {
+            try {
+                val currentJobs = _uiState.value.jobs
+                val currentConfig = _uiState.value.currentLoadedConfiguration
+
+                if (currentConfig != null) {
+                    Log.d("MainViewModel", "Обновляем конфигурацию: ${currentConfig.name} (${currentConfig.id}), работ: ${currentJobs.size}")
+
+                    // Создаем обновленную конфигурацию
+                    val updatedConfig = currentConfig.copy(
+                        jobs = currentJobs
+                    )
+
+                    // Сохраняем в базу данных
+                    if (currentConfig.id == "current") {
+                        configurationRepository.saveCurrentConfiguration(updatedConfig)
+                        configurationRepository.saveLastConfigurationId("current")
+                    } else {
+                        configurationRepository.updateConfiguration(updatedConfig)
+                        configurationRepository.saveLastConfigurationId(updatedConfig.id)
+                    }
+
+                    // Обновляем состояние UI
+                    _uiState.value = _uiState.value.copy(
+                        currentLoadedConfiguration = updatedConfig,
+                        originalLoadedConfiguration = updatedConfig
+                    )
+
+                    // Обновляем список сохраненных конфигураций
+                    loadSavedConfigurations()
+
+                    Log.d("MainViewModel", "Конфигурация успешно обновлена")
+                } else {
+                    Log.w("MainViewModel", "Нет текущей конфигурации для обновления")
+                }
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при обновлении конфигурации", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Ошибка при сохранении изменений: ${e.message}"
+                )
+            }
+        }
+    }
+
+
 
     /**
      * Помечает конфигурацию как измененную (сбрасывает связь с загруженной конфигурацией)

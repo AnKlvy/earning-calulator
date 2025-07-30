@@ -227,25 +227,47 @@ private fun ConfigurationItem(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
-                        text = "Часов в неделю: ${SalaryCalculator.formatHours(configuration.getTotalWeeklyHours())}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (configuration.jobs.isNotEmpty()) {
+                        Text(
+                            text = "Часов в неделю: ${SalaryCalculator.formatHours(configuration.getTotalWeeklyHours())}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Text(
+                            text = "Готова к заполнению",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
-                
+
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = SalaryCalculator.formatMoney(configuration.getTotalMonthlySalary()),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "${SalaryCalculator.formatMoney(configuration.getAverageHourlyRate())}/ч",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (configuration.jobs.isNotEmpty()) {
+                        Text(
+                            text = SalaryCalculator.formatMoney(configuration.getTotalMonthlySalary()),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "${SalaryCalculator.formatMoney(configuration.getAverageHourlyRate())}/ч",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Text(
+                            text = "0 ₽",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "0 ₽/ч",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
             
@@ -259,7 +281,7 @@ private fun ConfigurationItem(
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 configuration.jobs.take(3).forEach { job ->
                     Text(
                         text = "• ${job.name} (${SalaryCalculator.formatMoney(job.monthlySalary)})",
@@ -269,7 +291,7 @@ private fun ConfigurationItem(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                
+
                 if (configuration.jobs.size > 3) {
                     Text(
                         text = "• и еще ${configuration.jobs.size - 3}...",
@@ -277,6 +299,13 @@ private fun ConfigurationItem(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            } else {
+                Text(
+                    text = "Пустая конфигурация",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                )
             }
         }
     }

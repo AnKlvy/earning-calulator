@@ -1,18 +1,15 @@
 package com.earningformula.ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.earningformula.R
 import com.earningformula.data.models.TotalCalculationResult
 import com.earningformula.data.models.JobInputType
@@ -25,13 +22,11 @@ fun ResultsCard(
     totalResult: TotalCalculationResult?,
     currentLoadedConfiguration: WorkConfiguration?,
     originalLoadedConfiguration: WorkConfiguration?,
-    onSaveConfiguration: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showSaveDialog by remember { mutableStateOf(false) }
     
     if (totalResult == null) return
-    
+
     Card(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -42,29 +37,13 @@ fun ResultsCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Заголовок с кнопкой сохранения
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.total_results),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                
-                IconButton(
-                    onClick = { showSaveDialog = true }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Save,
-                        contentDescription = stringResource(R.string.save_configuration),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
+            // Заголовок
+            Text(
+                text = stringResource(R.string.total_results),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -175,18 +154,6 @@ fun ResultsCard(
             }
         }
     }
-    
-    // Диалог сохранения конфигурации
-    if (showSaveDialog) {
-        SaveConfigurationDialog(
-            currentConfigurationName = originalLoadedConfiguration?.name,
-            onDismiss = { showSaveDialog = false },
-            onSave = { configName ->
-                onSaveConfiguration(configName)
-                showSaveDialog = false
-            }
-        )
-    }
 }
 
 @Composable
@@ -261,63 +228,4 @@ private fun JobResultItem(
     }
 }
 
-@Composable
-private fun SaveConfigurationDialog(
-    currentConfigurationName: String?,
-    onDismiss: () -> Unit,
-    onSave: (String) -> Unit
-) {
-    var configName by remember { mutableStateOf(currentConfigurationName ?: "") }
-    
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.save_configuration),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                OutlinedTextField(
-                    value = configName,
-                    onValueChange = { configName = it },
-                    label = { Text(stringResource(R.string.configuration_name)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                    
-                    Spacer(modifier = Modifier.width(8.dp))
-                    
-                    Button(
-                        onClick = { 
-                            if (configName.isNotBlank()) {
-                                onSave(configName.trim())
-                            }
-                        },
-                        enabled = configName.isNotBlank()
-                    ) {
-                        Text(stringResource(R.string.save))
-                    }
-                }
-            }
-        }
-    }
-}
+

@@ -2,6 +2,7 @@ package com.earningformula.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.earningformula.data.models.DayOfWeek
 import com.earningformula.data.models.Job
 import com.earningformula.data.models.JobInputType
@@ -35,31 +36,56 @@ class SharedPreferencesManager {
         appContext?.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             ?: throw IllegalStateException("SharedPreferencesManager не инициализирован. Вызовите initialize(context) в Application классе.")
     }
+
+    // Объект для синхронизации операций с конфигурациями
+    private val configurationLock = Any()
     
     /**
      * Сохраняет конфигурацию
      */
     fun saveConfiguration(configuration: WorkConfiguration) {
-        val configurations = getAllConfigurations().toMutableList()
-        
-        // Удаляем существующую конфигурацию с тем же ID, если есть
-        configurations.removeAll { it.id == configuration.id }
-        
-        // Добавляем новую конфигурацию
-        configurations.add(configuration)
-        
-        // Сортируем по дате создания (новые сверху)
-        configurations.sortByDescending { it.createdAt }
-        
-        saveAllConfigurations(configurations)
+        synchronized(configurationLock) {
+            Log.d("SharedPreferencesManager", "Сохранение конфигурации: ${configuration.name} (${configuration.id})")
+
+            val configurations = getAllConfigurationsUnsafe().toMutableList()
+            Log.d("SharedPreferencesManager", "Текущее количество конфигураций: ${configurations.size}")
+
+            // Удаляем существующую конфигурацию с тем же ID, если есть
+            configurations.removeAll { it.id == configuration.id }
+
+            // Добавляем новую конфигурацию
+            configurations.add(configuration)
+
+            // Сортируем по дате создания (новые сверху)
+            configurations.sortByDescending { it.createdAt }
+
+            Log.d("SharedPreferencesManager", "Сохраняем ${configurations.size} конфигураций")
+            saveAllConfigurations(configurations)
+
+            // Проверяем что сохранилось
+            val savedConfigs = getAllConfigurationsUnsafe()
+            Log.d("SharedPreferencesManager", "После сохранения: ${savedConfigs.size} конфигураций")
+        }
     }
     
     /**
      * Получает все сохраненные конфигурации
      */
     fun getAllConfigurations(): List<WorkConfiguration> {
+        synchronized(configurationLock) {
+            return getAllConfigurationsUnsafe()
+        }
+    }
+
+    /**
+     * Получает все сохраненные конфигурации без синхронизации (для внутреннего использования)
+     */
+    private fun getAllConfigurationsUnsafe(): List<WorkConfiguration> {
         val configurationsJson = sharedPreferences.getString(KEY_CONFIGURATIONS, "[]")
-        return parseConfigurationsFromJson(configurationsJson ?: "[]")
+        Log.d("SharedPreferencesManager", "Загружаем конфигурации из JSON: $configurationsJson")
+        val configs = parseConfigurationsFromJson(configurationsJson ?: "[]")
+        Log.d("SharedPreferencesManager", "Загружено ${configs.size} конфигураций")
+        return configs
     }
     
     /**
@@ -73,9 +99,11 @@ class SharedPreferencesManager {
      * Удаляет конфигурацию по ID
      */
     fun deleteConfiguration(id: String) {
-        val configurations = getAllConfigurations().toMutableList()
-        configurations.removeAll { it.id == id }
-        saveAllConfigurations(configurations)
+        synchronized(configurationLock) {
+            val configurations = getAllConfigurationsUnsafe().toMutableList()
+            configurations.removeAll { it.id == id }
+            saveAllConfigurations(configurations)
+        }
     }
     
     /**
