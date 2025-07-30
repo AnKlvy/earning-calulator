@@ -15,13 +15,16 @@ import com.earningformula.R
 import com.earningformula.data.models.Job
 import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.Currency
+import com.earningformula.data.models.Language
 import com.earningformula.utils.SalaryCalculator
+import com.earningformula.utils.LocalizationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobCard(
     job: Job,
     currency: Currency,
+    language: Language,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -74,19 +77,19 @@ fun JobCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     InfoItem(
-                        label = "Зарплата в месяц:",
+                        label = LocalizationHelper.getMonthlySalary(language) + ":",
                         value = SalaryCalculator.formatMoney(job.monthlySalary, currency)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     if (job.inputType == JobInputType.DAILY_HOURS) {
                         InfoItem(
-                            label = stringResource(R.string.weekly_hours) + ":",
-                            value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " ч"
+                            label = LocalizationHelper.getWeeklyHours(language) + ":",
+                            value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " " + LocalizationHelper.getHoursShort(language)
                         )
                     } else {
                         InfoItem(
-                            label = "Общие часы работы:",
-                            value = SalaryCalculator.formatHours(job.totalMonthlyHours) + " ч"
+                            label = LocalizationHelper.getTotalWorkHours(language) + ":",
+                            value = SalaryCalculator.formatHours(job.totalMonthlyHours) + " " + LocalizationHelper.getHoursShort(language)
                         )
                     }
                 }
@@ -94,19 +97,19 @@ fun JobCard(
                 Column(modifier = Modifier.weight(1f)) {
                     if (job.inputType == JobInputType.DAILY_HOURS) {
                         InfoItem(
-                            label = stringResource(R.string.monthly_hours) + ":",
-                            value = SalaryCalculator.formatHours(job.getMonthlyHours()) + " ч"
+                            label = LocalizationHelper.getTotalMonthlyHours(language) + ":",
+                            value = SalaryCalculator.formatHours(job.getMonthlyHours()) + " " + LocalizationHelper.getHoursShort(language)
                         )
                     } else {
                         InfoItem(
-                            label = "Часов в неделю:",
-                            value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " ч"
+                            label = LocalizationHelper.getWeeklyHours(language) + ":",
+                            value = SalaryCalculator.formatHours(job.getWeeklyHours()) + " " + LocalizationHelper.getHoursShort(language)
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     InfoItem(
-                        label = stringResource(R.string.hourly_rate) + ":",
-                        value = SalaryCalculator.formatMoney(job.getHourlyRate(), currency) + "/ч",
+                        label = LocalizationHelper.getHourlyRate(language) + ":",
+                        value = SalaryCalculator.formatMoney(job.getHourlyRate(), currency) + LocalizationHelper.getPerHour(language),
                         valueColor = MaterialTheme.colorScheme.primary
                     )
                 }

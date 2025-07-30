@@ -8,6 +8,7 @@ import com.earningformula.data.models.Job
 import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.Currency
+import com.earningformula.data.models.Language
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -18,6 +19,7 @@ class SharedPreferencesManager {
         private const val KEY_LAST_CONFIGURATION_ID = "last_configuration_id"
         private const val KEY_CURRENT_CONFIGURATION = "current_configuration"
         private const val KEY_CURRENCY = "currency"
+        private const val KEY_LANGUAGE = "language"
 
         @Volatile
         private var INSTANCE: SharedPreferencesManager? = null
@@ -387,5 +389,27 @@ class SharedPreferencesManager {
     fun getCurrency(): Currency {
         val currencyCode = sharedPreferences.getString(KEY_CURRENCY, Currency.RUB.code)
         return Currency.fromCode(currencyCode ?: Currency.RUB.code)
+    }
+
+    /**
+     * Сохраняет выбранный язык
+     */
+    fun saveLanguage(language: Language) {
+        sharedPreferences.edit()
+            .putString(KEY_LANGUAGE, language.code)
+            .apply()
+    }
+
+    /**
+     * Получает сохраненный язык
+     */
+    fun getLanguage(): Language {
+        val languageCode = sharedPreferences.getString(KEY_LANGUAGE, null)
+        return if (languageCode != null) {
+            Language.fromCode(languageCode)
+        } else {
+            // Если язык не сохранен, используем системный
+            Language.getSystemLanguage()
+        }
     }
 }

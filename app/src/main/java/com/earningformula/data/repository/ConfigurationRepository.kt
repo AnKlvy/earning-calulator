@@ -3,6 +3,7 @@ package com.earningformula.data.repository
 import com.earningformula.data.local.SharedPreferencesManager
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.Currency
+import com.earningformula.data.models.Language
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -222,6 +223,32 @@ class ConfigurationRepository(
                 sharedPreferencesManager.getCurrency()
             } catch (e: Exception) {
                 throw ConfigurationException("Ошибка при загрузке валюты: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Сохраняет выбранный язык
+     */
+    suspend fun saveLanguage(language: Language) {
+        withContext(Dispatchers.IO) {
+            try {
+                sharedPreferencesManager.saveLanguage(language)
+            } catch (e: Exception) {
+                throw ConfigurationException("Ошибка при сохранении языка: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Получает сохраненный язык
+     */
+    suspend fun getLanguage(): Language {
+        return withContext(Dispatchers.IO) {
+            try {
+                sharedPreferencesManager.getLanguage()
+            } catch (e: Exception) {
+                throw ConfigurationException("Ошибка при загрузке языка: ${e.message}", e)
             }
         }
     }

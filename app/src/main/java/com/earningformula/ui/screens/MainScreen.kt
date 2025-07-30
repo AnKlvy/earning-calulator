@@ -23,7 +23,9 @@ import com.earningformula.ui.components.ResultsCard
 import com.earningformula.ui.components.FavoritesDialog
 import com.earningformula.ui.components.CreateConfigurationDialog
 import com.earningformula.ui.components.CurrencySelectionDialog
+import com.earningformula.ui.components.LanguageSelectionDialog
 import com.earningformula.ui.viewmodel.MainViewModel
+import com.earningformula.utils.LocalizationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +38,7 @@ fun MainScreen(
     var showCreateConfigDialog by remember { mutableStateOf(false) }
     var showDropdownMenu by remember { mutableStateOf(false) }
     var showCurrencyDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     var jobToEdit by remember { mutableStateOf<Job?>(null) }
 
     Column(
@@ -50,19 +53,29 @@ fun MainScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(R.string.app_name),
+                text = LocalizationHelper.getAppTitle(uiState.selectedLanguage),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
             
             Row {
-                // Кнопка выбора валюты
-                TextButton(
+                // Компактная кнопка выбора языка
+                IconButton(
+                    onClick = { showLanguageDialog = true }
+                ) {
+                    Text(
+                        text = uiState.selectedLanguage.code.uppercase(),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+
+                // Компактная кнопка выбора валюты
+                IconButton(
                     onClick = { showCurrencyDialog = true }
                 ) {
                     Text(
                         text = uiState.selectedCurrency.symbol,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
 
@@ -89,7 +102,7 @@ fun MainScreen(
                         onDismissRequest = { showDropdownMenu = false }
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Новая конфигурация") },
+                            text = { Text(LocalizationHelper.getNewConfiguration(uiState.selectedLanguage)) },
                             onClick = {
                                 showDropdownMenu = false
                                 showCreateConfigDialog = true
@@ -102,7 +115,7 @@ fun MainScreen(
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Добавить работу") },
+                            text = { Text(LocalizationHelper.getAddJob(uiState.selectedLanguage)) },
                             onClick = {
                                 showDropdownMenu = false
                                 showAddJobDialog = true
@@ -130,6 +143,7 @@ fun MainScreen(
                 JobCard(
                     job = job,
                     currency = uiState.selectedCurrency,
+                    language = uiState.selectedLanguage,
                     onEditClick = { jobToEdit = job },
                     onDeleteClick = { viewModel.deleteJob(job.id) }
                 )
@@ -185,7 +199,8 @@ fun MainScreen(
                         totalResult = uiState.totalResult,
                         currentLoadedConfiguration = uiState.currentLoadedConfiguration,
                         originalLoadedConfiguration = uiState.originalLoadedConfiguration,
-                        currency = uiState.selectedCurrency
+                        currency = uiState.selectedCurrency,
+                        language = uiState.selectedLanguage
                     )
                 }
             }
@@ -243,11 +258,24 @@ fun MainScreen(
     if (showCurrencyDialog) {
         CurrencySelectionDialog(
             currentCurrency = uiState.selectedCurrency,
+            currentLanguage = uiState.selectedLanguage,
             onCurrencySelected = { currency ->
                 viewModel.changeCurrency(currency)
                 showCurrencyDialog = false
             },
             onDismiss = { showCurrencyDialog = false }
+        )
+    }
+
+    // Диалог выбора языка
+    if (showLanguageDialog) {
+        LanguageSelectionDialog(
+            currentLanguage = uiState.selectedLanguage,
+            onLanguageSelected = { language ->
+                viewModel.changeLanguage(language)
+                showLanguageDialog = false
+            },
+            onDismiss = { showLanguageDialog = false }
         )
     }
 

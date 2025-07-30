@@ -15,7 +15,9 @@ import com.earningformula.data.models.TotalCalculationResult
 import com.earningformula.data.models.JobInputType
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.Currency
+import com.earningformula.data.models.Language
 import com.earningformula.utils.SalaryCalculator
+import com.earningformula.utils.LocalizationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +26,7 @@ fun ResultsCard(
     currentLoadedConfiguration: WorkConfiguration?,
     originalLoadedConfiguration: WorkConfiguration?,
     currency: Currency,
+    language: Language,
     modifier: Modifier = Modifier
 ) {
     
@@ -41,7 +44,7 @@ fun ResultsCard(
         ) {
             // Заголовок
             Text(
-                text = stringResource(R.string.total_results),
+                text = LocalizationHelper.getTotalResults(language),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -56,28 +59,28 @@ fun ResultsCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     ResultItem(
-                        label = stringResource(R.string.total_weekly_hours),
-                        value = "${SalaryCalculator.formatHours(totalResult.totalWeeklyHours)} ч",
+                        label = LocalizationHelper.getTotalWeeklyHours(language),
+                        value = "${SalaryCalculator.formatHours(totalResult.totalWeeklyHours)} ${LocalizationHelper.getHoursShort(language)}",
                         isHighlighted = false
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     ResultItem(
-                        label = stringResource(R.string.total_monthly_hours),
-                        value = "${SalaryCalculator.formatHours(totalResult.totalMonthlyHours)} ч",
+                        label = LocalizationHelper.getTotalMonthlyHours(language),
+                        value = "${SalaryCalculator.formatHours(totalResult.totalMonthlyHours)} ${LocalizationHelper.getHoursShort(language)}",
                         isHighlighted = false
                     )
                 }
                 
                 Column(modifier = Modifier.weight(1f)) {
                     ResultItem(
-                        label = stringResource(R.string.total_monthly_salary),
+                        label = LocalizationHelper.getMonthlySalary(language),
                         value = SalaryCalculator.formatMoney(totalResult.totalMonthlySalary, currency),
                         isHighlighted = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     ResultItem(
-                        label = "Средняя ставка в час",
-                        value = "${SalaryCalculator.formatMoney(totalResult.averageHourlyRate, currency)}/ч",
+                        label = LocalizationHelper.getAverageHourlyRate(language),
+                        value = "${SalaryCalculator.formatMoney(totalResult.averageHourlyRate, currency)}${LocalizationHelper.getPerHour(language)}",
                         isHighlighted = true
                     )
                 }
@@ -93,7 +96,7 @@ fun ResultsCard(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     Text(
-                        text = "Разбивка по дням:",
+                        text = LocalizationHelper.getBreakdownByDays(language),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium
                     )
@@ -106,12 +109,12 @@ fun ResultsCard(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Будни:",
+                                text = LocalizationHelper.getWeekdays(language) + ":",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "${SalaryCalculator.formatHours(totalResult.totalWeekdayHours)} ч/нед",
+                                text = "${SalaryCalculator.formatHours(totalResult.totalWeekdayHours)} ${LocalizationHelper.getHoursShort(language)}/${LocalizationHelper.getWeekShort(language)}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium
                             )
@@ -119,12 +122,12 @@ fun ResultsCard(
                         
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Выходные:",
+                                text = LocalizationHelper.getWeekends(language) + ":",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = "${SalaryCalculator.formatHours(totalResult.totalWeekendHours)} ч/нед",
+                                text = "${SalaryCalculator.formatHours(totalResult.totalWeekendHours)} ${LocalizationHelper.getHoursShort(language)}/${LocalizationHelper.getWeekShort(language)}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium
                             )
@@ -138,7 +141,7 @@ fun ResultsCard(
             // Детализация по работам
             if (totalResult.jobResults.isNotEmpty()) {
                 Text(
-                    text = "Детализация по работам:",
+                    text = LocalizationHelper.getJobBreakdown(language),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -150,6 +153,7 @@ fun ResultsCard(
                     JobResultItem(
                         jobResult = jobResult,
                         currency = currency,
+                        language = language,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -185,6 +189,7 @@ private fun ResultItem(
 private fun JobResultItem(
     jobResult: com.earningformula.data.models.CalculationResult,
     currency: Currency,
+    language: Language,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -208,8 +213,8 @@ private fun JobResultItem(
                 )
                 Text(
                     text = when (jobResult.job.inputType) {
-                        JobInputType.DAILY_HOURS -> "${SalaryCalculator.formatHours(jobResult.weeklyHours)} ч/нед"
-                        JobInputType.TOTAL_MONTHLY_HOURS -> "${SalaryCalculator.formatHours(jobResult.job.totalMonthlyHours)} ч/мес"
+                        JobInputType.DAILY_HOURS -> "${SalaryCalculator.formatHours(jobResult.weeklyHours)} ${LocalizationHelper.getHoursShort(language)}/${LocalizationHelper.getWeekShort(language)}"
+                        JobInputType.TOTAL_MONTHLY_HOURS -> "${SalaryCalculator.formatHours(jobResult.job.totalMonthlyHours)} ${LocalizationHelper.getHoursShort(language)}/${LocalizationHelper.getMonthShort(language)}"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -223,7 +228,7 @@ private fun JobResultItem(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "${SalaryCalculator.formatMoney(jobResult.hourlyRate, currency)}/ч",
+                    text = "${SalaryCalculator.formatMoney(jobResult.hourlyRate, currency)}${LocalizationHelper.getPerHour(language)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )

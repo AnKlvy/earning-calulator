@@ -12,10 +12,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.earningformula.data.models.Currency
+import com.earningformula.data.models.Language
+import com.earningformula.utils.LocalizationHelper
 
 @Composable
 fun CurrencySelectionDialog(
     currentCurrency: Currency,
+    currentLanguage: Language,
     onCurrencySelected: (Currency) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -30,7 +33,7 @@ fun CurrencySelectionDialog(
                 modifier = Modifier.padding(24.dp)
             ) {
                 Text(
-                    text = "Выберите валюту",
+                    text = LocalizationHelper.getSelectCurrency(currentLanguage),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -68,7 +71,7 @@ fun CurrencySelectionDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Отмена")
+                        Text(LocalizationHelper.getCancel(currentLanguage))
                     }
                 }
             }

@@ -6,6 +6,7 @@ import com.earningformula.data.models.Job
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.TotalCalculationResult
 import com.earningformula.data.models.Currency
+import com.earningformula.data.models.Language
 import com.earningformula.data.repository.ConfigurationRepository
 import com.earningformula.utils.SalaryCalculator
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ data class MainUiState(
     val currentLoadedConfiguration: WorkConfiguration? = null,
     val originalLoadedConfiguration: WorkConfiguration? = null, // Оригинальная конфигурация до изменений
     val selectedCurrency: Currency = Currency.RUB,
+    val selectedLanguage: Language = Language.RUSSIAN,
     val isLoading: Boolean = false,
     val errorMessage: String? = null
 )
@@ -36,6 +38,7 @@ class MainViewModel(
     init {
         loadSavedConfigurations()
         loadSavedCurrency()
+        loadSavedLanguage()
         // Загружаем последнюю конфигурацию или пример для демонстрации
         loadLastOrSampleConfiguration()
     }
@@ -607,6 +610,50 @@ class MainViewModel(
             } catch (e: Exception) {
                 Log.e("MainViewModel", "Ошибка при загрузке валюты", e)
                 // Используем валюту по умолчанию
+            }
+        }
+    }
+
+    /**
+     * Изменяет язык приложения
+     */
+    fun changeLanguage(language: Language) {
+        viewModelScope.launch {
+            try {
+                Log.d("MainViewModel", "Изменяем язык на: ${language.displayName}")
+
+                // Сохраняем в настройки
+                configurationRepository.saveLanguage(language)
+
+                // Обновляем UI состояние
+                _uiState.value = _uiState.value.copy(
+                    selectedLanguage = language
+                )
+
+                Log.d("MainViewModel", "Язык успешно изменен")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при изменении языка", e)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Ошибка при изменении языка: ${e.message}"
+                )
+            }
+        }
+    }
+
+    /**
+     * Загружает сохраненный язык при инициализации
+     */
+    private fun loadSavedLanguage() {
+        viewModelScope.launch {
+            try {
+                val savedLanguage = configurationRepository.getLanguage()
+                _uiState.value = _uiState.value.copy(
+                    selectedLanguage = savedLanguage
+                )
+                Log.d("MainViewModel", "Загружен язык: ${savedLanguage.displayName}")
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Ошибка при загрузке языка", e)
+                // Используем язык по умолчанию
             }
         }
     }
