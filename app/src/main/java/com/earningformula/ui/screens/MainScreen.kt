@@ -3,6 +3,7 @@ package com.earningformula.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
@@ -13,7 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.earningformula.R
 import com.earningformula.data.models.Job
@@ -54,46 +57,71 @@ fun MainScreen(
         ) {
             Text(
                 text = LocalizationHelper.getAppTitle(uiState.selectedLanguage),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleMedium     , // Уменьшили размер
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f), // Занимает доступное место
+                maxLines = 1, // Одна строка
+                overflow = TextOverflow.Ellipsis // Обрезка если не помещается
             )
             
-            Row {
-                // Компактная кнопка выбора языка
-                IconButton(
-                    onClick = { showLanguageDialog = true }
+            // Компактный ряд кнопок
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp), // Минимальные отступы
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Очень компактная кнопка языка
+                Surface(
+                    onClick = { showLanguageDialog = true },
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(32.dp)
                 ) {
-                    Text(
-                        text = uiState.selectedLanguage.code.uppercase(),
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = uiState.selectedLanguage.code.uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        )
+                    }
                 }
 
-                // Компактная кнопка выбора валюты
-                IconButton(
-                    onClick = { showCurrencyDialog = true }
+                // Очень компактная кнопка валюты
+                Surface(
+                    onClick = { showCurrencyDialog = true },
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    modifier = Modifier.size(32.dp)
                 ) {
-                    Text(
-                        text = uiState.selectedCurrency.symbol,
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = uiState.selectedCurrency.symbol,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
 
-                IconButton(onClick = { showFavoritesDialog = true }) {
+                // Компактная кнопка избранного
+                IconButton(
+                    onClick = { showFavoritesDialog = true },
+                    modifier = Modifier.size(32.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
-                        contentDescription = stringResource(R.string.favorites)
+                        contentDescription = stringResource(R.string.favorites),
+                        modifier = Modifier.size(20.dp)
                     )
                 }
 
                 Box {
                     FloatingActionButton(
                         onClick = { showDropdownMenu = true },
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(32.dp) // Такой же размер как у других кнопок
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Меню добавления"
+                            contentDescription = "Меню добавления",
+                            modifier = Modifier.size(20.dp) // Уменьшили иконку
                         )
                     }
 
@@ -175,7 +203,7 @@ fun MainScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    text = "Добавьте первую работу",
+                                    text = LocalizationHelper.getAddJob(uiState.selectedLanguage),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -183,7 +211,7 @@ fun MainScreen(
                                 TextButton(
                                     onClick = { showAddJobDialog = true }
                                 ) {
-                                    Text(stringResource(R.string.add_job))
+                                    Text(LocalizationHelper.getAddJob(uiState.selectedLanguage))
                                 }
                             }
                         }
@@ -202,6 +230,7 @@ fun MainScreen(
                         currency = uiState.selectedCurrency,
                         language = uiState.selectedLanguage
                     )
+                    Spacer(modifier = Modifier.height(16.dp)) // Добавляем отступ внизу
                 }
             }
         }
@@ -210,6 +239,7 @@ fun MainScreen(
     // Диалоги
     if (showAddJobDialog) {
         AddJobDialog(
+            language = uiState.selectedLanguage,
             onDismiss = { showAddJobDialog = false },
             onSave = { job ->
                 viewModel.addJob(job)
@@ -221,6 +251,7 @@ fun MainScreen(
     jobToEdit?.let { job ->
         AddJobDialog(
             job = job,
+            language = uiState.selectedLanguage,
             onDismiss = { jobToEdit = null },
             onSave = { updatedJob ->
                 viewModel.updateJob(updatedJob)
@@ -232,6 +263,7 @@ fun MainScreen(
     if (showFavoritesDialog) {
         FavoritesDialog(
             configurations = uiState.savedConfigurations,
+            language = uiState.selectedLanguage,
             onDismiss = { showFavoritesDialog = false },
             onLoadConfiguration = { configuration ->
                 viewModel.loadConfiguration(configuration)
@@ -246,6 +278,7 @@ fun MainScreen(
 
     if (showCreateConfigDialog) {
         CreateConfigurationDialog(
+            language = uiState.selectedLanguage,
             onDismiss = { showCreateConfigDialog = false },
             onCreateConfiguration = { configName ->
                 viewModel.createNewConfigurationWithName(configName)

@@ -1,6 +1,8 @@
 package com.earningformula.utils
 
 import com.earningformula.data.models.Language
+import com.earningformula.data.models.DayOfWeek
+import com.earningformula.data.models.Currency
 
 object LocalizationHelper {
     
@@ -324,6 +326,396 @@ object LocalizationHelper {
             Language.CHINESE -> "/小时"
             Language.HINDI -> "/घं"
             Language.ARABIC -> "/س"
+        }
+    }
+
+    // Переводы для форм
+    fun getJobName(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Название работы"
+            Language.ENGLISH -> "Job Name"
+            Language.SPANISH -> "Nombre del Trabajo"
+            Language.KAZAKH -> "Жұмыс атауы"
+            Language.GERMAN -> "Job-Name"
+            Language.FRENCH -> "Nom du Travail"
+            Language.CHINESE -> "工作名称"
+            Language.HINDI -> "नौकरी का नाम"
+            Language.ARABIC -> "اسم الوظيفة"
+        }
+    }
+
+    fun getSalary(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Зарплата"
+            Language.ENGLISH -> "Salary"
+            Language.SPANISH -> "Salario"
+            Language.KAZAKH -> "Жалақы"
+            Language.GERMAN -> "Gehalt"
+            Language.FRENCH -> "Salaire"
+            Language.CHINESE -> "工资"
+            Language.HINDI -> "वेतन"
+            Language.ARABIC -> "الراتب"
+        }
+    }
+
+    fun getInputType(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Тип ввода"
+            Language.ENGLISH -> "Input Type"
+            Language.SPANISH -> "Tipo de Entrada"
+            Language.KAZAKH -> "Енгізу түрі"
+            Language.GERMAN -> "Eingabetyp"
+            Language.FRENCH -> "Type de Saisie"
+            Language.CHINESE -> "输入类型"
+            Language.HINDI -> "इनपुट प्रकार"
+            Language.ARABIC -> "نوع الإدخال"
+        }
+    }
+
+    fun getDailyHours(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Часы по дням"
+            Language.ENGLISH -> "Daily Hours"
+            Language.SPANISH -> "Horas Diarias"
+            Language.KAZAKH -> "Күндік сағаттар"
+            Language.GERMAN -> "Tägliche Stunden"
+            Language.FRENCH -> "Heures Quotidiennes"
+            Language.CHINESE -> "每日小时数"
+            Language.HINDI -> "दैनिक घंटे"
+            Language.ARABIC -> "الساعات اليومية"
+        }
+    }
+
+    fun getTotalMonthlyHoursInput(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Общие часы в месяц"
+            Language.ENGLISH -> "Total Monthly Hours"
+            Language.SPANISH -> "Horas Mensuales Totales"
+            Language.KAZAKH -> "Жалпы айлық сағаттар"
+            Language.GERMAN -> "Gesamte Monatsstunden"
+            Language.FRENCH -> "Heures Mensuelles Totales"
+            Language.CHINESE -> "每月总小时数"
+            Language.HINDI -> "कुल मासिक घंटे"
+            Language.ARABIC -> "إجمالي الساعات الشهرية"
+        }
+    }
+
+    fun getSave(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Сохранить"
+            Language.ENGLISH -> "Save"
+            Language.SPANISH -> "Guardar"
+            Language.KAZAKH -> "Сақтау"
+            Language.GERMAN -> "Speichern"
+            Language.FRENCH -> "Enregistrer"
+            Language.CHINESE -> "保存"
+            Language.HINDI -> "सेव करें"
+            Language.ARABIC -> "حفظ"
+        }
+    }
+
+    fun getEdit(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Редактировать"
+            Language.ENGLISH -> "Edit"
+            Language.SPANISH -> "Editar"
+            Language.KAZAKH -> "Өңдеу"
+            Language.GERMAN -> "Bearbeiten"
+            Language.FRENCH -> "Modifier"
+            Language.CHINESE -> "编辑"
+            Language.HINDI -> "संपादित करें"
+            Language.ARABIC -> "تحرير"
+        }
+    }
+
+    fun getConfigurationName(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Название конфигурации"
+            Language.ENGLISH -> "Configuration Name"
+            Language.SPANISH -> "Nombre de Configuración"
+            Language.KAZAKH -> "Конфигурация атауы"
+            Language.GERMAN -> "Konfigurationsname"
+            Language.FRENCH -> "Nom de Configuration"
+            Language.CHINESE -> "配置名称"
+            Language.HINDI -> "कॉन्फ़िगरेशन नाम"
+            Language.ARABIC -> "اسم التكوين"
+        }
+    }
+
+    fun getCreate(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Создать"
+            Language.ENGLISH -> "Create"
+            Language.SPANISH -> "Crear"
+            Language.KAZAKH -> "Жасау"
+            Language.GERMAN -> "Erstellen"
+            Language.FRENCH -> "Créer"
+            Language.CHINESE -> "创建"
+            Language.HINDI -> "बनाएं"
+            Language.ARABIC -> "إنشاء"
+        }
+    }
+
+    // Дни недели
+    fun getMonday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Пн"
+            Language.ENGLISH -> "Mon"
+            Language.SPANISH -> "Lun"
+            Language.KAZAKH -> "Дс"
+            Language.GERMAN -> "Mo"
+            Language.FRENCH -> "Lun"
+            Language.CHINESE -> "周一"
+            Language.HINDI -> "सोम"
+            Language.ARABIC -> "الإثنين"
+        }
+    }
+
+    fun getTuesday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Вт"
+            Language.ENGLISH -> "Tue"
+            Language.SPANISH -> "Mar"
+            Language.KAZAKH -> "Сс"
+            Language.GERMAN -> "Di"
+            Language.FRENCH -> "Mar"
+            Language.CHINESE -> "周二"
+            Language.HINDI -> "मंगल"
+            Language.ARABIC -> "الثلاثاء"
+        }
+    }
+
+    fun getWednesday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Ср"
+            Language.ENGLISH -> "Wed"
+            Language.SPANISH -> "Mié"
+            Language.KAZAKH -> "Ср"
+            Language.GERMAN -> "Mi"
+            Language.FRENCH -> "Mer"
+            Language.CHINESE -> "周三"
+            Language.HINDI -> "बुध"
+            Language.ARABIC -> "الأربعاء"
+        }
+    }
+
+    fun getThursday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Чт"
+            Language.ENGLISH -> "Thu"
+            Language.SPANISH -> "Jue"
+            Language.KAZAKH -> "Бс"
+            Language.GERMAN -> "Do"
+            Language.FRENCH -> "Jeu"
+            Language.CHINESE -> "周四"
+            Language.HINDI -> "गुरु"
+            Language.ARABIC -> "الخميس"
+        }
+    }
+
+    fun getFriday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Пт"
+            Language.ENGLISH -> "Fri"
+            Language.SPANISH -> "Vie"
+            Language.KAZAKH -> "Жм"
+            Language.GERMAN -> "Fr"
+            Language.FRENCH -> "Ven"
+            Language.CHINESE -> "周五"
+            Language.HINDI -> "शुक्र"
+            Language.ARABIC -> "الجمعة"
+        }
+    }
+
+    fun getSaturday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Сб"
+            Language.ENGLISH -> "Sat"
+            Language.SPANISH -> "Sáb"
+            Language.KAZAKH -> "Сб"
+            Language.GERMAN -> "Sa"
+            Language.FRENCH -> "Sam"
+            Language.CHINESE -> "周六"
+            Language.HINDI -> "शनि"
+            Language.ARABIC -> "السبت"
+        }
+    }
+
+    fun getSunday(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Вс"
+            Language.ENGLISH -> "Sun"
+            Language.SPANISH -> "Dom"
+            Language.KAZAKH -> "Жк"
+            Language.GERMAN -> "So"
+            Language.FRENCH -> "Dim"
+            Language.CHINESE -> "周日"
+            Language.HINDI -> "रवि"
+            Language.ARABIC -> "الأحد"
+        }
+    }
+
+    fun getDayOfWeekShort(dayOfWeek: DayOfWeek, language: Language): String {
+        return when (dayOfWeek) {
+            DayOfWeek.MONDAY -> getMonday(language)
+            DayOfWeek.TUESDAY -> getTuesday(language)
+            DayOfWeek.WEDNESDAY -> getWednesday(language)
+            DayOfWeek.THURSDAY -> getThursday(language)
+            DayOfWeek.FRIDAY -> getFriday(language)
+            DayOfWeek.SATURDAY -> getSaturday(language)
+            DayOfWeek.SUNDAY -> getSunday(language)
+        }
+    }
+
+    // Переводы для диалогов
+    fun getNoSavedConfigurations(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Нет сохраненных конфигураций"
+            Language.ENGLISH -> "No saved configurations"
+            Language.SPANISH -> "No hay configuraciones guardadas"
+            Language.KAZAKH -> "Сақталған конфигурациялар жоқ"
+            Language.GERMAN -> "Keine gespeicherten Konfigurationen"
+            Language.FRENCH -> "Aucune configuration sauvegardée"
+            Language.CHINESE -> "没有保存的配置"
+            Language.HINDI -> "कोई सहेजा गया कॉन्फ़िगरेशन नहीं"
+            Language.ARABIC -> "لا توجد تكوينات محفوظة"
+        }
+    }
+
+    fun getLoad(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Загрузить"
+            Language.ENGLISH -> "Load"
+            Language.SPANISH -> "Cargar"
+            Language.KAZAKH -> "Жүктеу"
+            Language.GERMAN -> "Laden"
+            Language.FRENCH -> "Charger"
+            Language.CHINESE -> "加载"
+            Language.HINDI -> "लोड करें"
+            Language.ARABIC -> "تحميل"
+        }
+    }
+
+    fun getDelete(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Удалить"
+            Language.ENGLISH -> "Delete"
+            Language.SPANISH -> "Eliminar"
+            Language.KAZAKH -> "Жою"
+            Language.GERMAN -> "Löschen"
+            Language.FRENCH -> "Supprimer"
+            Language.CHINESE -> "删除"
+            Language.HINDI -> "हटाएं"
+            Language.ARABIC -> "حذف"
+        }
+    }
+
+    fun getJobs(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "работ"
+            Language.ENGLISH -> "jobs"
+            Language.SPANISH -> "trabajos"
+            Language.KAZAKH -> "жұмыс"
+            Language.GERMAN -> "Jobs"
+            Language.FRENCH -> "emplois"
+            Language.CHINESE -> "工作"
+            Language.HINDI -> "नौकरियां"
+            Language.ARABIC -> "وظائف"
+        }
+    }
+
+    fun getHours(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "часов"
+            Language.ENGLISH -> "hours"
+            Language.SPANISH -> "horas"
+            Language.KAZAKH -> "сағат"
+            Language.GERMAN -> "Stunden"
+            Language.FRENCH -> "heures"
+            Language.CHINESE -> "小时"
+            Language.HINDI -> "घंटे"
+            Language.ARABIC -> "ساعات"
+        }
+    }
+
+    // Переводы валют
+    fun getCurrencyName(currency: Currency, language: Language): String {
+        return when (currency) {
+            Currency.RUB -> when (language) {
+                Language.RUSSIAN -> "Рубли"
+                Language.ENGLISH -> "Rubles"
+                Language.SPANISH -> "Rublos"
+                Language.KAZAKH -> "Рублдер"
+                Language.GERMAN -> "Rubel"
+                Language.FRENCH -> "Roubles"
+                Language.CHINESE -> "卢布"
+                Language.HINDI -> "रूबल"
+                Language.ARABIC -> "روبل"
+            }
+            Currency.USD -> when (language) {
+                Language.RUSSIAN -> "Доллары"
+                Language.ENGLISH -> "Dollars"
+                Language.SPANISH -> "Dólares"
+                Language.KAZAKH -> "Доллар"
+                Language.GERMAN -> "Dollar"
+                Language.FRENCH -> "Dollars"
+                Language.CHINESE -> "美元"
+                Language.HINDI -> "डॉलर"
+                Language.ARABIC -> "دولار"
+            }
+            Currency.KZT -> when (language) {
+                Language.RUSSIAN -> "Тенге"
+                Language.ENGLISH -> "Tenge"
+                Language.SPANISH -> "Tenge"
+                Language.KAZAKH -> "Теңге"
+                Language.GERMAN -> "Tenge"
+                Language.FRENCH -> "Tenge"
+                Language.CHINESE -> "坚戈"
+                Language.HINDI -> "तेंगे"
+                Language.ARABIC -> "تنغي"
+            }
+        }
+    }
+
+    fun getEmptyConfiguration(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Пустая конфигурация"
+            Language.ENGLISH -> "Empty configuration"
+            Language.SPANISH -> "Configuración vacía"
+            Language.KAZAKH -> "Бос конфигурация"
+            Language.GERMAN -> "Leere Konfiguration"
+            Language.FRENCH -> "Configuration vide"
+            Language.CHINESE -> "空配置"
+            Language.HINDI -> "खाली कॉन्फ़िगरेशन"
+            Language.ARABIC -> "تكوين فارغ"
+        }
+    }
+
+    fun getReadyToFill(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Готова к заполнению"
+            Language.ENGLISH -> "Ready to fill"
+            Language.SPANISH -> "Lista para llenar"
+            Language.KAZAKH -> "Толтыруға дайын"
+            Language.GERMAN -> "Bereit zum Ausfüllen"
+            Language.FRENCH -> "Prête à remplir"
+            Language.CHINESE -> "准备填写"
+            Language.HINDI -> "भरने के लिए तैयार"
+            Language.ARABIC -> "جاهز للملء"
+        }
+    }
+
+    fun getJobs2(language: Language): String {
+        return when (language) {
+            Language.RUSSIAN -> "Работы"
+            Language.ENGLISH -> "Jobs"
+            Language.SPANISH -> "Trabajos"
+            Language.KAZAKH -> "Жұмыстар"
+            Language.GERMAN -> "Jobs"
+            Language.FRENCH -> "Emplois"
+            Language.CHINESE -> "工作"
+            Language.HINDI -> "नौकरियां"
+            Language.ARABIC -> "وظائف"
         }
     }
 }

@@ -57,7 +57,7 @@ fun CurrencySelectionDialog(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "${currency.symbol} ${currency.displayName}",
+                            text = "${currency.symbol} ${LocalizationHelper.getCurrencyName(currency, currentLanguage)}",
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.weight(1f)
                         )

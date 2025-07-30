@@ -20,7 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.earningformula.R
 import com.earningformula.data.models.WorkConfiguration
+import com.earningformula.data.models.Language
 import com.earningformula.utils.SalaryCalculator
+import com.earningformula.utils.LocalizationHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,6 +30,7 @@ import java.util.*
 @Composable
 fun FavoritesDialog(
     configurations: List<WorkConfiguration>,
+    language: Language,
     onDismiss: () -> Unit,
     onLoadConfiguration: (WorkConfiguration) -> Unit,
     onDeleteConfiguration: (String) -> Unit,
@@ -53,7 +56,7 @@ fun FavoritesDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.favorites),
+                        text = LocalizationHelper.getFavorites(language),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -87,7 +90,7 @@ fun FavoritesDialog(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "Нет сохраненных конфигураций",
+                                text = LocalizationHelper.getNoSavedConfigurations(language),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -108,6 +111,7 @@ fun FavoritesDialog(
                         items(configurations) { configuration ->
                             ConfigurationItem(
                                 configuration = configuration,
+                                language = language,
                                 onLoadClick = { onLoadConfiguration(configuration) },
                                 onDeleteClick = { configToDelete = configuration }
                             )
@@ -123,7 +127,7 @@ fun FavoritesDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("Закрыть")
+                        Text(LocalizationHelper.getCancel(language))
                     }
                 }
             }
@@ -146,14 +150,14 @@ fun FavoritesDialog(
                     }
                 ) {
                     Text(
-                        text = stringResource(R.string.delete),
+                        text = LocalizationHelper.getDelete(language),
                         color = MaterialTheme.colorScheme.error
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { configToDelete = null }) {
-                    Text(stringResource(R.string.cancel))
+                    Text(LocalizationHelper.getCancel(language))
                 }
             }
         )
@@ -163,6 +167,7 @@ fun FavoritesDialog(
 @Composable
 private fun ConfigurationItem(
     configuration: WorkConfiguration,
+    language: Language,
     onLoadClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -223,19 +228,19 @@ private fun ConfigurationItem(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Работ: ${configuration.jobs.size}",
+                        text = "${LocalizationHelper.getJobs(language)}: ${configuration.jobs.size}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     if (configuration.jobs.isNotEmpty()) {
                         Text(
-                            text = "Часов в неделю: ${SalaryCalculator.formatHours(configuration.getTotalWeeklyHours())}",
+                            text = "${LocalizationHelper.getWeeklyHours(language)}: ${SalaryCalculator.formatHours(configuration.getTotalWeeklyHours())} ${LocalizationHelper.getHoursShort(language)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
                         Text(
-                            text = "Готова к заполнению",
+                            text = LocalizationHelper.getReadyToFill(language),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -276,7 +281,7 @@ private fun ConfigurationItem(
             // Список работ
             if (configuration.jobs.isNotEmpty()) {
                 Text(
-                    text = "Работы:",
+                    text = LocalizationHelper.getJobs2(language) + ":",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -301,7 +306,7 @@ private fun ConfigurationItem(
                 }
             } else {
                 Text(
-                    text = "Пустая конфигурация",
+                    text = LocalizationHelper.getEmptyConfiguration(language),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic

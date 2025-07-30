@@ -17,13 +17,16 @@ import com.earningformula.R
 import com.earningformula.data.models.DayOfWeek
 import com.earningformula.data.models.Job
 import com.earningformula.data.models.JobInputType
+import com.earningformula.data.models.Language
 import com.earningformula.utils.SalaryCalculator
+import com.earningformula.utils.LocalizationHelper
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddJobDialog(
     job: Job? = null,
+    language: Language,
     onDismiss: () -> Unit,
     onSave: (Job) -> Unit
 ) {
@@ -54,7 +57,7 @@ fun AddJobDialog(
             ) {
                 // Заголовок
                 Text(
-                    text = if (isEditing) "Редактировать работу" else stringResource(R.string.add_job),
+                    text = if (isEditing) LocalizationHelper.getEdit(language) + " " + LocalizationHelper.getAddJob(language).lowercase() else LocalizationHelper.getAddJob(language),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -65,7 +68,7 @@ fun AddJobDialog(
                 OutlinedTextField(
                     value = jobName,
                     onValueChange = { jobName = it },
-                    label = { Text(stringResource(R.string.job_name)) },
+                    label = { Text(LocalizationHelper.getJobName(language)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -76,11 +79,10 @@ fun AddJobDialog(
                 OutlinedTextField(
                     value = monthlySalary,
                     onValueChange = { monthlySalary = it },
-                    label = { Text(stringResource(R.string.monthly_salary)) },
+                    label = { Text(LocalizationHelper.getSalary(language)) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    suffix = { Text("₽") }
+                    singleLine = true
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -91,7 +93,7 @@ fun AddJobDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Ввести общие часы",
+                        text = LocalizationHelper.getTotalMonthlyHoursInput(language),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f)
                     )
@@ -108,7 +110,7 @@ fun AddJobDialog(
                 if (inputType == JobInputType.TOTAL_MONTHLY_HOURS) {
                     // Общие часы в месяц
                     Text(
-                        text = "Общие часы работы",
+                        text = LocalizationHelper.getTotalWorkHours(language),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -118,16 +120,16 @@ fun AddJobDialog(
                     OutlinedTextField(
                         value = totalMonthlyHours,
                         onValueChange = { totalMonthlyHours = it },
-                        label = { Text("Часов в месяц") },
+                        label = { Text(LocalizationHelper.getTotalMonthlyHours(language)) },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
-                        suffix = { Text("ч") }
+                        suffix = { Text(LocalizationHelper.getHoursShort(language)) }
                     )
                 } else {
                     // Часы по дням недели
                     Text(
-                        text = stringResource(R.string.hours_per_day),
+                        text = LocalizationHelper.getDailyHours(language),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
@@ -136,7 +138,7 @@ fun AddJobDialog(
                 
                 // Будние дни
                 Text(
-                    text = "Будние дни:",
+                    text = LocalizationHelper.getWeekdays(language) + ":",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
@@ -149,7 +151,7 @@ fun AddJobDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = day.displayName,
+                            text = LocalizationHelper.getDayOfWeekShort(day, language),
                             modifier = Modifier.width(40.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -166,7 +168,7 @@ fun AddJobDialog(
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true,
-                            suffix = { Text("ч") },
+                            suffix = { Text(LocalizationHelper.getHoursShort(language)) },
                             placeholder = { Text("0") }
                         )
                     }
@@ -178,7 +180,7 @@ fun AddJobDialog(
                 
                 // Выходные дни
                 Text(
-                    text = "Выходные дни:",
+                    text = LocalizationHelper.getWeekends(language) + ":",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium
                 )
@@ -191,7 +193,7 @@ fun AddJobDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = day.displayName,
+                            text = LocalizationHelper.getDayOfWeekShort(day, language),
                             modifier = Modifier.width(40.dp),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -208,7 +210,7 @@ fun AddJobDialog(
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             singleLine = true,
-                            suffix = { Text("ч") },
+                            suffix = { Text(LocalizationHelper.getHoursShort(language)) },
                             placeholder = { Text("0") }
                         )
                     }
@@ -245,7 +247,7 @@ fun AddJobDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel))
+                        Text(LocalizationHelper.getCancel(language))
                     }
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -282,7 +284,7 @@ fun AddJobDialog(
                             }
                         }
                     ) {
-                        Text(stringResource(R.string.save))
+                        Text(LocalizationHelper.getSave(language))
                     }
                 }
             }

@@ -9,10 +9,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.earningformula.R
+import com.earningformula.data.models.Language
+import com.earningformula.utils.LocalizationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateConfigurationDialog(
+    language: Language,
     onDismiss: () -> Unit,
     onCreateConfiguration: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -29,7 +32,7 @@ fun CreateConfigurationDialog(
                 modifier = Modifier.padding(24.dp)
             ) {
                 Text(
-                    text = "Создать новую конфигурацию",
+                    text = LocalizationHelper.getCreate(language) + " " + LocalizationHelper.getNewConfiguration(language).lowercase(),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -42,8 +45,7 @@ fun CreateConfigurationDialog(
                         configurationName = it
                         isError = false
                     },
-                    label = { Text("Название конфигурации") },
-                    placeholder = { Text("Введите название...") },
+                    label = { Text(LocalizationHelper.getConfigurationName(language)) },
                     isError = isError,
                     supportingText = if (isError) {
                         { Text("Название не может быть пустым") }
@@ -61,7 +63,7 @@ fun CreateConfigurationDialog(
                     TextButton(
                         onClick = onDismiss
                     ) {
-                        Text("Отмена")
+                        Text(LocalizationHelper.getCancel(language))
                     }
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -76,7 +78,7 @@ fun CreateConfigurationDialog(
                             }
                         }
                     ) {
-                        Text("Создать")
+                        Text(LocalizationHelper.getCreate(language))
                     }
                 }
             }
