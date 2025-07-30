@@ -27,6 +27,9 @@ fun LanguageSelectionDialog(
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 8.dp
+            )
         ) {
             Column(
                 modifier = Modifier.padding(24.dp)

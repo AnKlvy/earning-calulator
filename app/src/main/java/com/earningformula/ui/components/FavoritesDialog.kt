@@ -21,6 +21,7 @@ import androidx.compose.ui.window.Dialog
 import com.earningformula.R
 import com.earningformula.data.models.WorkConfiguration
 import com.earningformula.data.models.Language
+import com.earningformula.data.models.Currency
 import com.earningformula.utils.SalaryCalculator
 import com.earningformula.utils.LocalizationHelper
 import java.text.SimpleDateFormat
@@ -31,6 +32,7 @@ import java.util.*
 fun FavoritesDialog(
     configurations: List<WorkConfiguration>,
     language: Language,
+    currency: Currency,
     onDismiss: () -> Unit,
     onLoadConfiguration: (WorkConfiguration) -> Unit,
     onDeleteConfiguration: (String) -> Unit,
@@ -112,6 +114,7 @@ fun FavoritesDialog(
                             ConfigurationItem(
                                 configuration = configuration,
                                 language = language,
+                                currency = currency,
                                 onLoadClick = { onLoadConfiguration(configuration) },
                                 onDeleteClick = { configToDelete = configuration }
                             )
@@ -168,6 +171,7 @@ fun FavoritesDialog(
 private fun ConfigurationItem(
     configuration: WorkConfiguration,
     language: Language,
+    currency: Currency,
     onLoadClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -250,25 +254,25 @@ private fun ConfigurationItem(
                 Column(horizontalAlignment = Alignment.End) {
                     if (configuration.jobs.isNotEmpty()) {
                         Text(
-                            text = SalaryCalculator.formatMoney(configuration.getTotalMonthlySalary()),
+                            text = SalaryCalculator.formatMoney(configuration.getTotalMonthlySalary(), currency),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = "${SalaryCalculator.formatMoney(configuration.getAverageHourlyRate())}/ч",
+                            text = "${SalaryCalculator.formatMoney(configuration.getAverageHourlyRate(), currency)}${LocalizationHelper.getPerHour(language)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     } else {
                         Text(
-                            text = "0 ₽",
+                            text = SalaryCalculator.formatMoney(0.0, currency),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "0 ₽/ч",
+                            text = "${SalaryCalculator.formatMoney(0.0, currency)}${LocalizationHelper.getPerHour(language)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

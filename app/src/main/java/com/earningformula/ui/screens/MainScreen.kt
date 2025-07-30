@@ -72,15 +72,18 @@ fun MainScreen(
                 // Очень компактная кнопка языка
                 Surface(
                     onClick = { showLanguageDialog = true },
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shadowElevation = 4.dp,
                     modifier = Modifier.size(32.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = uiState.selectedLanguage.code.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -88,29 +91,38 @@ fun MainScreen(
                 // Очень компактная кнопка валюты
                 Surface(
                     onClick = { showCurrencyDialog = true },
-                    shape = RoundedCornerShape(4.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shadowElevation = 4.dp,
                     modifier = Modifier.size(32.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = uiState.selectedCurrency.symbol,
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
 
                 // Компактная кнопка избранного
-                IconButton(
+                Surface(
                     onClick = { showFavoritesDialog = true },
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer,
+                    shadowElevation = 4.dp,
                     modifier = Modifier.size(32.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = stringResource(R.string.favorites),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = stringResource(R.string.favorites),
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
                 }
 
                 Box {
@@ -186,7 +198,11 @@ fun MainScreen(
                             .fillMaxWidth()
                             .height(120.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 6.dp,
+                            pressedElevation = 8.dp
                         )
                     ) {
                         Box(
@@ -200,13 +216,14 @@ fun MainScreen(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = null,
                                     modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
                                     text = LocalizationHelper.getAddJob(uiState.selectedLanguage),
                                     style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    fontWeight = FontWeight.Medium
                                 )
                             }
                         }
@@ -259,6 +276,7 @@ fun MainScreen(
         FavoritesDialog(
             configurations = uiState.savedConfigurations,
             language = uiState.selectedLanguage,
+            currency = uiState.selectedCurrency,
             onDismiss = { showFavoritesDialog = false },
             onLoadConfiguration = { configuration ->
                 viewModel.loadConfiguration(configuration)
